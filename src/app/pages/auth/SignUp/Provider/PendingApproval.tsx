@@ -1,9 +1,65 @@
-import { Link } from 'react-router';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { Home, Clock, CheckCircle, FileCheck } from 'lucide-react';
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
+import { toast } from 'sonner';
 
 export default function PendingApproval() {
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(false);
+
+//  const handleCheckStatus = async () => {
+//   try {
+//     const token = localStorage.getItem('access_token');
+//     const res = await fetch('/api/provider/', {
+//       headers: { Authorization: `Bearer ${token}` },
+//     });
+//     const data = await res.json();
+
+   
+//     const profile = data.provider || data.data || data;
+
+//     // console.log('adminApproved:', profile.adminApproved); 
+
+//     if (profile.adminApproved === 'Active') {
+//       navigate('/provider/home', { replace: true });
+//     } else {
+//       toast.info('Your application is still under review');
+//     }
+//   } catch {
+//     toast.error('Failed to check status');
+//   }
+// };
+
+const handleCheckStatus = async () => {
+  try {
+    const token = localStorage.getItem('access_token');
+    const res = await fetch('/api/provider/profile', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    const profile = data.provider || data.data || data;
+    console.log('profile:', profile);
+
+    if (profile.adminApproved === 'Active') {
+      navigate('/provider/home', { replace: true });
+    } else {
+      toast.info('Your application is still under review');
+    }
+  } catch {
+    toast.error('Failed to check status');
+  }
+};
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center">
+        <p className="text-muted-foreground animate-pulse">Checking status...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
@@ -77,9 +133,11 @@ export default function PendingApproval() {
             </p>
           </div>
 
-          <Link to="/">
-            <Button variant="outline">Return to Home</Button>
-          </Link>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={handleCheckStatus}>
+  Check Status
+</Button>
+          </div>
         </Card>
       </div>
     </div>

@@ -3,34 +3,40 @@ export async function getPendingProviders() {
   try {
     const token = localStorage.getItem('admin_token');
 
-    const res = await fetch('/api/admin/pending-providers', {
-      method: 'GET',
+    // جيب كل الـ providers
+    const res = await fetch('/api/admin/providers?page=1&limit=100', {
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     });
 
     const result = await res.json();
-console.log(result)
+    console.log('All providers response:', result);
+
     if (res.ok) {
+      const allProviders = result.providers || result.data || [];
+      const pending = allProviders.filter(
+        (p: any) =>
+          p.adminApproved === 'PendingApproval' ||
+          p.adminApproved === 'Pending' ||
+          !p.adminApproved
+      );
+
       return {
         success: true,
-        data: result.data || result.providers || result,
-        message: result.message || 'Pending providers fetched successfully',
+        data: pending,
+        message: 'Pending providers fetched successfully',
       };
     }
 
     return {
       success: false,
       error: result.message || 'Failed to fetch pending providers',
-      code: res.status,
     };
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Network error',
-      code: 0,
     };
   }
 }
@@ -155,3 +161,4 @@ export async function getProviderById(providerId: string) {
     };
   }
 }
+

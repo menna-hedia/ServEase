@@ -19,7 +19,7 @@ export async function ProviderSignUpAction(
       const accessToken =
         result?.access_token || result?.token;
 
-      if (accessToken) {
+      if (accessToken ) {
         localStorage.setItem(
           "access_token",
           accessToken

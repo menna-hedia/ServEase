@@ -1,19 +1,21 @@
-export async function getProviders(search = '', page = 1) {
+export async function getProviders(params: {
+  search?: string;
+  city?: string;
+  page?: number;
+} = {}) {
   try {
     const token = localStorage.getItem('admin_token');
 
-    const params = new URLSearchParams();
-    if (search) params.append('search', search);
-    params.append('page', String(page));
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.city)   query.append('city', params.city);
+    query.append('page', String(params.page || 1));
 
-    const res = await fetch(`/api/admin/providers?${params.toString()}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const res = await fetch(`/api/admin/providers?${query.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     const result = await res.json();
-
 
     if (res.ok) {
       return {
@@ -33,13 +35,11 @@ export async function getProviders(search = '', page = 1) {
 
 export async function deleteProvider(id: string) {
   try {
-   const token = localStorage.getItem('admin_token');
+    const token = localStorage.getItem('admin_token');
 
     const res = await fetch(`/api/admin/delete/${id}`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     const result = await res.json();

@@ -44,8 +44,6 @@ export default function CustomerProfile() {
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
 
-  // ✅ profileImage starts as default; gets replaced by API value on load,
-  //    and updated to the new URL after a successful upload
   const [profileImage, setProfileImage] = useState(DEFAULT_AVATAR);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -174,8 +172,8 @@ export default function CustomerProfile() {
       firstName: formData.firstName,
       lastName: formData.lastName,
       mobileNumber: formData.phone,
-      city: formData.city,
-      state: formData.state,
+      city: formData.state,
+      state: formData.city,
       gender: formData.gender,
     });
 

@@ -10,8 +10,7 @@ export async function CustomerSignUpAction(
       ...submitData,
       city: data.state,
       state: data.city,
-
-      // make sure gender is uppercase
+      
       gender: data.gender?.toUpperCase(),
     };
 

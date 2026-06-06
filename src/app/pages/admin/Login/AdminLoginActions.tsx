@@ -1,3 +1,4 @@
+// ============ ADMIN LOGIN ============
 export async function adminLoginAction(email: string, password: string) {
   try {
     const res = await fetch('/api/admin/login', {
@@ -9,7 +10,6 @@ export async function adminLoginAction(email: string, password: string) {
     });
 
     const result = await res.json();
-    console.log('Admin login response:', result);
 
     if (res.ok) {
       localStorage.setItem('admin_token', result.access_token);

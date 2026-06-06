@@ -35,7 +35,6 @@ export const providerSignUpSchema = zod
 
     writtenCv: zod
       .string()
-      .min(6, "Written CV must be at least 6 characters")
       .optional(),
 
     state: zod.string().min(1, "State is required"),

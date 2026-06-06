@@ -59,12 +59,32 @@ export default function SignIn() {
   }
 
   // success
-  toast.success("Signed in successfully!");
+toast.success('Signed in successfully!');
 
-  if (userType === "customer") {
-    navigate("/customer/home");
-  } else {
-    navigate("/provider/home");
+const role = result.data?.role;
+
+if (role === 'Provider') {
+  const token = result.data?.access_token;
+  try {
+    const profileRes = await fetch('/api/provider/', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const profile = await profileRes.json();
+
+    if (profile.adminApproved === 'PendingApproval') {
+      localStorage.setItem('provider_approved', 'false');
+      navigate('/pending-approval');
+    } else {
+
+      localStorage.setItem('provider_approved', 'true');
+      navigate('/provider/home');
+    }
+  } catch {
+    localStorage.setItem('provider_approved', 'true');
+    navigate('/provider/home');
+  }
+}else{
+    navigate('/customer/home');
   }
 };
 

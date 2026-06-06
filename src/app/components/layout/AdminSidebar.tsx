@@ -1,21 +1,22 @@
 import { Link, useLocation, useNavigate } from 'react-router';
-import { Home, LayoutDashboard, Users, Briefcase, UserCheck, ClipboardList, UserCog, Settings, LogOut } from 'lucide-react';
-import { toast } from 'sonner';
+import { Home, LayoutDashboard, Users, Briefcase, UserCheck, ClipboardList, UserCog, Settings, LogOut, Wrench } from 'lucide-react';
 import { adminLogoutAction } from '../../pages/admin/Login/AdminLoginActions';
+import { toast } from 'sonner';
 
 export default function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const menuItems = [
-    { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/admin/customers', label: 'Customers', icon: Users },
-    { path: '/admin/providers', label: 'Providers', icon: Briefcase },
-    { path: '/admin/provider-approval', label: 'Provider Approval', icon: UserCheck },
-    { path: '/admin/requests', label: 'Requests', icon: ClipboardList },
-    { path: '/admin/admins', label: 'Admins', icon: UserCog },
-    { path: '/admin/settings', label: 'Settings', icon: Settings },
-  ];
+  { path: '/admin/dashboard',        label: 'Dashboard',         icon: LayoutDashboard },
+  { path: '/admin/customers',        label: 'Customers',         icon: Users           },
+  { path: '/admin/providers',        label: 'Providers',         icon: Briefcase       },
+  { path: '/admin/provider-approval',label: 'Provider Approval', icon: UserCheck       },
+  { path: '/admin/requests',         label: 'Requests',          icon: ClipboardList   },
+  { path: '/admin/services',         label: 'Services',          icon: Wrench          }, 
+  { path: '/admin/admins',           label: 'Admins',            icon: UserCog         },
+  { path: '/admin/settings',         label: 'Settings',          icon: Settings        },
+];
 
   const handleLogout = () => {
     adminLogoutAction();

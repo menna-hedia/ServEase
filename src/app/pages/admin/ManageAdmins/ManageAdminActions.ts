@@ -199,3 +199,41 @@ export async function getAdminById(adminId: string) {
     };
   }
 }
+
+// ============ SEARCH ADMINS ============
+export async function searchAdmins(search = '') {
+  try {
+    const token = localStorage.getItem('admin_token');
+
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+
+    const res = await fetch(`/api/admin/search-admin?${params.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      return {
+        success: true,
+        data: result.users || [],
+        totalUsers: result.totalUsers ?? 0,
+        totalPages: result.totalPages ?? 1,
+        currentPage: result.currentPage ?? 1,
+      };
+    }
+
+    return {
+      success: false,
+      error: result.message || 'Failed to search admins',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Network error',
+    };
+  }
+}

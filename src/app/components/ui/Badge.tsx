@@ -2,7 +2,7 @@ import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from '../../utils/cn';
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: 'waiting' | 'pending' | 'confirmed' | 'completed' | 'rejected' | 'outdated' | 'default';
+  variant?: 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused' | 'outdated' | 'default';
 }
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
@@ -17,7 +17,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
             'bg-orange-100 text-orange-800': variant === 'pending',
             'bg-blue-100 text-blue-800': variant === 'confirmed',
             'bg-green-100 text-green-800': variant === 'completed',
-            'bg-red-100 text-red-800': variant === 'rejected',
+            'bg-red-100 text-red-800': variant === 'refused',
             'bg-gray-100 text-gray-800': variant === 'outdated',
             'bg-muted text-muted-foreground': variant === 'default',
           },

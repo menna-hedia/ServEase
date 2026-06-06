@@ -1,6 +1,447 @@
+// import { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router';
+// import { Calendar, MapPin, Clock, Eye, FileX, DollarSign, X, Check } from 'lucide-react';
+// import { toast } from 'sonner';
+// import CustomerNavbar from '../../../components/layout/CustomerNavbar';
+// import Card from '../../../components/ui/Card';
+// import Footer from '../../../components/layout/Footer';
+// import Badge from '../../../components/ui/Badge';
+// import Button from '../../../components/ui/Button';
+// import Modal from '../../../components/ui/Modal';
+// import EmptyState from '../../../components/ui/EmptyState';
+// import { SkeletonCard } from '../../../components/ui/Skeleton';
+// import { getMyRequests, cancelRequest, acceptOffer, rejectOffer } from './MyRequestsActions';
+// import { getAllServices } from '../../shared/Services/ServicesActions';
+
+// type RequestStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused' | 'outdated';
+
+// function mapStatus(apiStatus: string): RequestStatus {
+//   const map: Record<string, RequestStatus> = {
+//     WAITING:   'waiting',
+//     PENDING:   'pending',
+//     CONFIRMED: 'confirmed',
+//     COMPLETED: 'completed',
+//     REFUSED:   'refused',
+//     OUTDATED:  'outdated',
+//   };
+//   return map[apiStatus] ?? 'waiting';
+// }
+
+// const tabs: { value: RequestStatus; label: string }[] = [
+//   { value: 'all',       label: 'All'       },
+//   { value: 'waiting',   label: 'Waiting'   },
+//   { value: 'pending',   label: 'Pending'   },
+//   { value: 'confirmed', label: 'Confirmed' },
+//   { value: 'completed', label: 'Completed' },
+//   { value: 'refused',   label: 'Refused'   },
+//   { value: 'outdated',  label: 'Outdated'  },
+// ];
+
+// const DEFAULT_AVATAR = 'https://i.pravatar.cc/150?img=1';
+
+// export default function MyRequestsPage() {
+//   const navigate = useNavigate();
+
+//   const [requests,        setRequests]        = useState<any[]>([]);
+//   const [services,        setServices]        = useState<any[]>([]);
+//   const [activeTab,       setActiveTab]       = useState<RequestStatus>('all');
+//   const [loading,         setLoading]         = useState(true);
+//   const [showCancelModal, setShowCancelModal] = useState(false);
+//   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
+//   const [cancelling,      setCancelling]      = useState(false);
+//   const [acceptingId,     setAcceptingId]     = useState<string | null>(null);
+//   const [rejectingId,     setRejectingId]     = useState<string | null>(null);
+//   const [showCompleteModal, setShowCompleteModal] = useState(false);
+// const [completionCode,    setCompletionCode]    = useState('');
+// const [isCompleting,      setIsCompleting]      = useState(false);
+
+//   useEffect(() => {
+//     const load = async () => {
+//       setLoading(true);
+//       const [requestsResult, servicesResult] = await Promise.all([
+//         getMyRequests(),
+//         getAllServices(),
+//       ]);
+//       setLoading(false);
+
+//       if (requestsResult.success) setRequests(requestsResult.data);
+//       else toast.error(requestsResult.error || 'Failed to load requests');
+
+//       if (servicesResult.success) setServices(servicesResult.data ?? []);
+//     };
+//     load();
+//   }, []);
+
+//   const getServiceName = (serviceId: string) =>
+//     services.find((s) => s._id === serviceId)?.name || serviceId;
+
+//   const filtered =
+//     activeTab === 'all'
+//       ? requests
+//       : requests.filter((r) => mapStatus(r.status) === activeTab);
+
+//   // ── Cancel ──────────────────────────────────────────────
+//   const handleCancelRequest = async () => {
+//     if (!selectedRequest) return;
+//     setCancelling(true);
+//     const result = await cancelRequest(selectedRequest._id);
+//     setCancelling(false);
+
+//     if (result.success) {
+//       toast.success('Request cancelled successfully');
+//       setRequests((prev) =>
+//         prev.map((r) =>
+//           r._id === selectedRequest._id ? { ...r, status: 'REFUSED' } : r
+//         )
+//       );
+//       setShowCancelModal(false);
+//       setSelectedRequest(null);
+//     } else {
+//       toast.error(result.error || 'Failed to cancel request');
+//     }
+//   };
+
+//   // ── Accept Offer ────────────────────────────────────────
+//   const handleAcceptOffer = async (request: any) => {
+//     const id = request._id;
+//     setAcceptingId(id);
+//     const result = await acceptOffer(id);
+//     setAcceptingId(null);
+
+//     if (result.success) {
+//       toast.success(result.message || 'Offer accepted!');
+//       setRequests((prev) =>
+//         prev.map((r) => (r._id === id ? { ...r, status: 'CONFIRMED' } : r))
+//       );
+//     } else {
+//       toast.error(result.error || 'Failed to accept offer');
+//     }
+//   };
+
+//   // ── Reject Offer ────────────────────────────────────────
+//   const handleRejectOffer = async (request: any) => {
+//     const id = request._id;
+//     setRejectingId(id);
+//     const result = await rejectOffer(id);
+//     setRejectingId(null);
+
+//     if (result.success) {
+//       toast.success(result.message || 'Offer rejected');
+//       setRequests((prev) =>
+//         prev.map((r) => (r._id === id ? { ...r, status: 'REFUSED' } : r))
+//       );
+//     } else {
+//       toast.error(result.error || 'Failed to reject offer');
+//     }
+//   };
+
+//   // ── Complete Service ─────────────────────────────────────
+//   // const handleCompleteService = (request: any) => {
+//   //   navigate('/complete-service', { state: { requestId: request._id } });
+//   // };
+
+//   const handleCompleteService = async () => {
+//   if (!completionCode.trim()) {
+//     toast.error('Please enter the completion code');
+//     return;
+//   }
+//   setIsCompleting(true);
+//   const result = await completeService(id!, completionCode);
+//   setIsCompleting(false);
+
+//   if (result.success) {
+//     toast.success('Service completed successfully!');
+//     setCurrentStatus('COMPLETED');
+//     setShowCompleteModal(false);
+//     setCompletionCode('');
+//   } else {
+//     toast.error(result.error || 'Failed to complete service');
+//   }
+// };
+
+//   // ── Helpers ──────────────────────────────────────────────
+//   const getProviderName = (provider: any) =>
+//     provider?.userName ||
+//     (provider?.firstName && provider?.lastName
+//       ? `${provider.firstName} ${provider.lastName}`
+//       : null);
+
+//   return (
+//     <div className="min-h-screen bg-background">
+//       <CustomerNavbar />
+
+//       <div className="container mx-auto px-4 lg:px-8 py-8">
+//         <div className="mb-8">
+//           <h1 className="text-3xl font-bold mb-2">My Requests</h1>
+//           <p className="text-muted-foreground">Track and manage your service requests</p>
+//         </div>
+
+//         {/* Tabs */}
+//         <div className="mb-6 overflow-x-auto">
+//           <div className="flex gap-2 pb-2">
+//             {tabs.map((tab) => (
+//               <button
+//                 key={tab.value}
+//                 onClick={() => setActiveTab(tab.value)}
+//                 className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+//                   activeTab === tab.value
+//                     ? 'bg-primary text-white'
+//                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
+//                 }`}
+//               >
+//                 {tab.label}
+//                 <span className="ml-2 text-xs opacity-70">
+//                   {tab.value === 'all'
+//                     ? requests.length
+//                     : requests.filter((r) => mapStatus(r.status) === tab.value).length}
+//                 </span>
+//               </button>
+//             ))}
+//           </div>
+//         </div>
+
+//         {/* List */}
+//         <div className="space-y-4">
+//           {loading ? (
+//             <><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
+//           ) : filtered.length === 0 ? (
+//             <EmptyState
+//               icon={<FileX className="w-10 h-10 text-muted-foreground" />}
+//               title="No requests found"
+//               description={`You don't have any ${activeTab === 'all' ? '' : activeTab + ' '}requests yet.`}
+//               action={{
+//                 label: 'Browse Services',
+//                 onClick: () => navigate('/customer/services'),
+//               }}
+//             />
+//           ) : (
+//             filtered.map((request) => {
+//               const id           = request._id;
+//               const status       = mapStatus(request.status);
+//               const provider     = request.provider;
+//               const providerName = getProviderName(provider);
+
+//               return (
+//                 <Card key={id}>
+//                   <div className="flex flex-col md:flex-row gap-6">
+
+//                     {/* Provider photo */}
+//                     <div className="flex flex-col items-center gap-2 shrink-0 w-30">
+//                       <img
+//                         src={provider?.profileURL || DEFAULT_AVATAR}
+//                         alt={providerName || 'Provider'}
+//                         className="w-30 h-30 rounded-xl object-cover"
+//                         onError={(e) => {
+//                           (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR;
+//                         }}
+//                       />
+//                       {providerName && (
+//                         <p className="text-s font-medium text-center text-muted-foreground leading-tight">
+//                           {providerName}
+//                         </p>
+//                       )}
+//                     </div>
+
+//                     <div className="flex-1">
+//                       {/* Title row */}
+//                       <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
+//                         <div>
+//                           <h3 className="text-xl font-semibold mb-1">
+//                             {getServiceName(request.serviceNeeded)}
+//                           </h3>
+//                           <p className="text-sm text-muted-foreground">Request #{id?.slice(-6)}</p>
+//                         </div>
+//                         <Badge variant={status as any}>
+//                           {status.charAt(0).toUpperCase() + status.slice(1)}
+//                         </Badge>
+//                       </div>
+
+//                       {/* Meta */}
+//                       <div className="grid md:grid-cols-2 gap-2 mb-4 text-sm text-muted-foreground">
+//                         {request.dateNeeded && (
+//                           <div className="flex items-center gap-2">
+//                             <Calendar className="w-4 h-4" />
+//                             <span>{new Date(request.dateNeeded).toLocaleDateString()}</span>
+//                           </div>
+//                         )}
+//                         {request.startTime && (
+//                           <div className="flex items-center gap-2">
+//                             <Clock className="w-4 h-4" />
+//                             <span>
+//                               {request.startTime}
+//                               {request.endTime ? ` → ${request.endTime}` : ''}
+//                             </span>
+//                           </div>
+//                         )}
+//                         {(request.city || request.governorate) && (
+//                           <div className="flex items-center gap-2 md:col-span-2">
+//                             <MapPin className="w-4 h-4" />
+//                             <span>
+//                               {[request.city, request.governorate].filter(Boolean).join(', ')}
+//                             </span>
+//                           </div>
+//                         )}
+//                       </div>
+
+//                       {/* Price */}
+//                       {request.price > 0 && (
+//                         <div className="flex items-center gap-1 mb-4">
+//                           <DollarSign className="w-4 h-4 text-primary" />
+//                           <span className="font-bold text-lg">EGP {request.price}</span>
+//                         </div>
+//                       )}
+
+//                       {/* Actions */}
+//                       <div className="flex flex-wrap gap-2">
+//                         <Button
+//                           variant="outline"
+//                           size="sm"
+//                           onClick={() =>
+//                             navigate(`/customer/requests/${id}`, { state: { request } })
+//                           }
+//                         >
+//                           <Eye className="w-4 h-4" />
+//                           View Details
+//                         </Button>
+
+//                         {status === 'waiting' && (
+//                           <Button
+//                             variant="destructive"
+//                             size="sm"
+//                             onClick={() => {
+//                               setSelectedRequest(request);
+//                               setShowCancelModal(true);
+//                             }}
+//                           >
+//                             <X className="w-4 h-4" />
+//                             Cancel Request
+//                           </Button>
+//                         )}
+
+//                         {status === 'pending' && (
+//                           <>
+//                             <Button
+//                               variant="success"
+//                               size="sm"
+//                               disabled={acceptingId === id}
+//                               onClick={() => handleAcceptOffer(request)}
+//                             >
+//                               <Check className="w-4 h-4" />
+//                               {acceptingId === id ? 'Accepting...' : 'Accept Offer'}
+//                             </Button>
+//                             <Button
+//                               variant="destructive"
+//                               size="sm"
+//                               disabled={rejectingId === id}
+//                               onClick={() => handleRejectOffer(request)}
+//                             >
+//                               <X className="w-4 h-4" />
+//                               {rejectingId === id ? 'Rejecting...' : 'Reject Offer'}
+//                             </Button>
+//                           </>
+//                         )}
+
+//                         {status === 'confirmed' && (
+//   <div className="flex gap-3 mt-6 pt-6 border-t border-border">
+//     <Button className="flex-1" onClick={() => setShowCompleteModal(true)}>
+//       <CheckCircle className="w-4 h-4" />
+//       Complete Service
+//     </Button>
+//     <Button
+//       variant="destructive"
+//       className="flex-1"
+//       onClick={() => setShowCancelModal(true)}
+//     >
+//       <X className="w-4 h-4" />
+//       Cancel Service
+//     </Button>
+//   </div>
+// )}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </Card>
+//               );
+//             })
+//           )}
+//         </div>
+//       </div>
+
+//       {/* Cancel Modal */}
+//       <Modal
+//         isOpen={showCancelModal}
+//         onClose={() => setShowCancelModal(false)}
+//         title="Cancel Request"
+//         size="sm"
+//       >
+//         <div className="space-y-4">
+//           <p className="text-sm text-muted-foreground">
+//             Are you sure you want to cancel this request?
+//           </p>
+//           <div className="flex gap-3">
+//             <Button
+//               variant="outline"
+//               onClick={() => setShowCancelModal(false)}
+//               className="flex-1"
+//               disabled={cancelling}
+//             >
+//               No, Keep It
+//             </Button>
+//             <Button
+//               variant="destructive"
+//               onClick={handleCancelRequest}
+//               className="flex-1"
+//               disabled={cancelling}
+//             >
+//               {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
+//             </Button>
+//           </div>
+//         </div>
+//       </Modal>
+// {/* Complete Modal */}
+// <Modal
+//   isOpen={showCompleteModal}
+//   onClose={() => setShowCompleteModal(false)}
+//   title="Complete Service"
+//   size="sm"
+// >
+//   <div className="space-y-4">
+//     <p className="text-sm text-muted-foreground">
+//       Enter the completion code provided by your service provider.
+//     </p>
+//     <Input
+//       label="Completion Code"
+//       placeholder="Enter code..."
+//       value={completionCode}
+//       onChange={(e) => setCompletionCode(e.target.value)}
+//     />
+//     <div className="flex gap-3">
+//       <Button
+//         variant="outline"
+//         onClick={() => setShowCompleteModal(false)}
+//         className="flex-1"
+//         disabled={isCompleting}
+//       >
+//         Cancel
+//       </Button>
+//       <Button
+//         onClick={handleCompleteService}
+//         className="flex-1"
+//         disabled={isCompleting}
+//       >
+//         {isCompleting ? 'Completing...' : 'Confirm'}
+//       </Button>
+//     </div>
+//   </div>
+// </Modal>
+//       <Footer />
+//     </div>
+//   );
+// }
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Calendar, DollarSign, X, Check, Eye, Clock, FileX, MapPin } from 'lucide-react';
+import { Calendar, MapPin, Clock, Eye, FileX, DollarSign, X, Check, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Card from '../../../components/ui/Card';
@@ -8,87 +449,157 @@ import Footer from '../../../components/layout/Footer';
 import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
+import Input from '../../../components/ui/Input';
 import EmptyState from '../../../components/ui/EmptyState';
 import { SkeletonCard } from '../../../components/ui/Skeleton';
-import { getMyRequests, cancelRequest } from './MyRequestsActions';
+import { getMyRequests, acceptOffer, rejectOffer } from './MyRequestsActions';
+import { getAllServices } from '../../shared/Services/ServicesActions';
 
-type RequestStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'rejected' | 'outdated';
+type RequestStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused' | 'outdated';
 
-// ✅ map API uppercase status → component lowercase status
 function mapStatus(apiStatus: string): RequestStatus {
   const map: Record<string, RequestStatus> = {
-    WAITING: 'waiting',
-    PENDING: 'pending',
+    WAITING:   'waiting',
+    PENDING:   'pending',
     CONFIRMED: 'confirmed',
     COMPLETED: 'completed',
-    REFUSED: 'rejected',
-    OUTDATED: 'outdated',
+    REFUSED:   'refused',
+    OUTDATED:  'outdated',
   };
   return map[apiStatus] ?? 'waiting';
 }
 
+const tabs: { value: RequestStatus; label: string }[] = [
+  { value: 'all',       label: 'All'       },
+  { value: 'waiting',   label: 'Waiting'   },
+  { value: 'pending',   label: 'Pending'   },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'refused',   label: 'Refused'   },
+  { value: 'outdated',  label: 'Outdated'  },
+];
+
+const DEFAULT_AVATAR = 'https://i.pravatar.cc/150?img=1';
+
 export default function MyRequestsPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<RequestStatus>('all');
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
-  const [requests, setRequests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [cancelling, setCancelling] = useState(false);
 
-  // ============ FETCH REQUESTS ============
+  const [requests,          setRequests]          = useState<any[]>([]);
+  const [services,          setServices]          = useState<any[]>([]);
+  const [activeTab,         setActiveTab]         = useState<RequestStatus>('all');
+  const [loading,           setLoading]           = useState(true);
+  const [selectedRequest,   setSelectedRequest]   = useState<any | null>(null);
+  const [acceptingId,       setAcceptingId]       = useState<string | null>(null);
+  const [rejectingId,       setRejectingId]       = useState<string | null>(null);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completionCode,    setCompletionCode]    = useState('');
+  const [isCompleting,      setIsCompleting]      = useState(false);
+
   useEffect(() => {
-    const loadRequests = async () => {
+    const load = async () => {
       setLoading(true);
-      const result = await getMyRequests();
+      const [requestsResult, servicesResult] = await Promise.all([
+        getMyRequests(),
+        getAllServices(),
+      ]);
       setLoading(false);
 
-      if (result.success) {
-        setRequests(result.data);
-      } else {
-        toast.error(result.error || 'Failed to load requests');
-      }
-    };
+      if (requestsResult.success) setRequests(requestsResult.data);
+      else toast.error(requestsResult.error || 'Failed to load requests');
 
-    loadRequests();
+      if (servicesResult.success) setServices(servicesResult.data ?? []);
+    };
+    load();
   }, []);
 
-  const tabs: { value: RequestStatus; label: string }[] = [
-    { value: 'all', label: 'All' },
-    { value: 'waiting', label: 'Waiting' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'outdated', label: 'Outdated' },
-  ];
+  const getServiceName = (serviceId: string) =>
+    services.find((s) => s._id === serviceId)?.name || serviceId;
 
-  const filteredRequests =
+  const filtered =
     activeTab === 'all'
       ? requests
-      : requests.filter((req) => mapStatus(req.status) === activeTab);
+      : requests.filter((r) => mapStatus(r.status) === activeTab);
 
-  // ============ HANDLERS ============
-  const handleCancelRequest = async () => {
-    if (!selectedRequest) return;
-    setCancelling(true);
-
-    const result = await cancelRequest(selectedRequest._id);
-    setCancelling(false);
+  // ── Accept Offer ────────────────────────────────────────
+  const handleAcceptOffer = async (request: any) => {
+    const id = request._id;
+    setAcceptingId(id);
+    const result = await acceptOffer(id);
+    setAcceptingId(null);
 
     if (result.success) {
-      toast.success('Request cancelled successfully');
-      setRequests((prev) => prev.filter((r) => r._id !== selectedRequest._id));
-      setShowCancelModal(false);
-      setSelectedRequest(null);
+      toast.success(result.message || 'Offer accepted!');
+      setRequests((prev) =>
+        prev.map((r) => (r._id === id ? { ...r, status: 'CONFIRMED' } : r))
+      );
     } else {
-      toast.error(result.error || 'Failed to cancel request');
+      toast.error(result.error || 'Failed to accept offer');
     }
   };
 
-  const handleCompleteService = (request: any) => {
-    navigate('/complete-service', { state: { requestId: request._id } });
+  // ── Reject Offer ────────────────────────────────────────
+  const handleRejectOffer = async (request: any) => {
+    const id = request._id;
+    setRejectingId(id);
+    const result = await rejectOffer(id);
+    setRejectingId(null);
+
+    if (result.success) {
+      toast.success(result.message || 'Offer rejected');
+      setRequests((prev) =>
+        prev.map((r) => (r._id === id ? { ...r, status: 'REFUSED' } : r))
+      );
+    } else {
+      toast.error(result.error || 'Failed to reject offer');
+    }
   };
+
+  // ── Complete Service ─────────────────────────────────────
+  const handleCompleteService = async () => {
+    if (!selectedRequest || !completionCode.trim()) {
+      toast.error('Please enter the completion code');
+      return;
+    }
+
+    setIsCompleting(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch('/api/service-requests/complete', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: selectedRequest._id, completionCode }),
+      });
+      const result = await res.json();
+
+      if (res.ok) {
+        toast.success('Service completed successfully!');
+        setRequests((prev) =>
+          prev.map((r) =>
+            r._id === selectedRequest._id ? { ...r, status: 'COMPLETED' } : r
+          )
+        );
+        setShowCompleteModal(false);
+        setCompletionCode('');
+        setSelectedRequest(null);
+      } else {
+        toast.error(result.message || 'Invalid completion code');
+      }
+    } catch {
+      toast.error('Failed to complete service');
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  // ── Helpers ──────────────────────────────────────────────
+  const getProviderName = (provider: any) =>
+    provider?.userName ||
+    (provider?.firstName && provider?.lastName
+      ? `${provider.firstName} ${provider.lastName}`
+      : null);
 
   return (
     <div className="min-h-screen bg-background">
@@ -114,20 +625,21 @@ export default function MyRequestsPage() {
                 }`}
               >
                 {tab.label}
+                <span className="ml-2 text-xs opacity-70">
+                  {tab.value === 'all'
+                    ? requests.length
+                    : requests.filter((r) => mapStatus(r.status) === tab.value).length}
+                </span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Requests */}
+        {/* List */}
         <div className="space-y-4">
           {loading ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          ) : filteredRequests.length === 0 ? (
+            <><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
+          ) : filtered.length === 0 ? (
             <EmptyState
               icon={<FileX className="w-10 h-10 text-muted-foreground" />}
               title="No requests found"
@@ -138,101 +650,131 @@ export default function MyRequestsPage() {
               }}
             />
           ) : (
-            filteredRequests.map((request) => {
-              const status = mapStatus(request.status);
+            filtered.map((request) => {
+              const id           = request._id;
+              const status       = mapStatus(request.status);
+              const provider     = request.provider;
+              const providerName = getProviderName(provider);
+
               return (
-                <Card
-                  key={request._id}
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate(`/customer/requests/${request._id}`)}
-                >
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-xl font-semibold mb-1">
-                          {request.serviceNeeded}
-                        </h3>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <MapPin className="w-4 h-4" />
-                          <span>{request.governorate}, {request.city}</span>
+                <Card key={id}>
+                  <div className="flex flex-col md:flex-row gap-6">
+
+                    {/* Provider photo */}
+                    <div className="flex flex-col items-center gap-2 shrink-0 w-30">
+                      <img
+                        src={provider?.profileURL || DEFAULT_AVATAR}
+                        alt={providerName || 'Provider'}
+                        className="w-30 h-30 rounded-xl object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR;
+                        }}
+                      />
+                      {providerName && (
+                        <p className="text-s font-medium text-center text-muted-foreground leading-tight">
+                          {providerName}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex-1">
+                      {/* Title row */}
+                      <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
+                        <div>
+                          <h3 className="text-xl font-semibold mb-1">
+                            {getServiceName(request.serviceNeeded)}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">Request #{id?.slice(-6)}</p>
                         </div>
+                        <Badge variant={status as any}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </Badge>
                       </div>
-                      <Badge variant={status === 'all' ? 'default' : status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </Badge>
-                    </div>
 
-                    <div className="grid sm:grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span>
-                          {new Date(request.dateNeeded).toLocaleDateString()}
-                        </span>
+                      {/* Meta */}
+                      <div className="grid md:grid-cols-2 gap-2 mb-4 text-sm text-muted-foreground">
+                        {request.dateNeeded && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{new Date(request.dateNeeded).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                        {request.startTime && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span>
+                              {request.startTime}
+                              {request.endTime ? ` → ${request.endTime}` : ''}
+                            </span>
+                          </div>
+                        )}
+                        {(request.city || request.governorate) && (
+                          <div className="flex items-center gap-2 md:col-span-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>
+                              {[request.city, request.governorate].filter(Boolean).join(', ')}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4 text-muted-foreground" />
-                        <span>{request.startTime} - {request.endTime}</span>
-                      </div>
-                    </div>
 
-                    {request.price && (
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-5 h-5 text-primary" />
-                        <span className="text-xl font-bold">${request.price}</span>
-                      </div>
-                    )}
+                      {/* Price */}
+                      {request.price > 0 && (
+                        <div className="flex items-center gap-1 mb-4">
+                          <DollarSign className="w-4 h-4 text-primary" />
+                          <span className="font-bold text-lg">EGP {request.price}</span>
+                        </div>
+                      )}
 
-                    {/* Action Buttons */}
-                    <div
-                      className="flex flex-wrap gap-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {status === 'waiting' && (
+                      {/* Actions */}
+                      <div className="flex flex-wrap gap-2">
                         <Button
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
-                          onClick={() => {
-                            setSelectedRequest(request);
-                            setShowCancelModal(true);
-                          }}
+                          onClick={() =>
+                            navigate(`/customer/requests/${id}`, { state: { request } })
+                          }
                         >
-                          <X className="w-4 h-4" />
-                          Cancel Request
+                          <Eye className="w-4 h-4" />
+                          View Details
                         </Button>
-                      )}
-                      {status === 'pending' && (
-                        <>
-                          <Button variant="success" size="sm">
-                            <Check className="w-4 h-4" />
-                            Accept Offer
-                          </Button>
-                          <Button variant="destructive" size="sm">
-                            <X className="w-4 h-4" />
-                            Reject Offer
-                          </Button>
-                        </>
-                      )}
-                      {status === 'confirmed' && (
-                        <>
+
+                        {status === 'pending' && (
+                          <>
+                            <Button
+                              variant="success"
+                              size="sm"
+                              disabled={acceptingId === id}
+                              onClick={() => handleAcceptOffer(request)}
+                            >
+                              <Check className="w-4 h-4" />
+                              {acceptingId === id ? 'Accepting...' : 'Accept Offer'}
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={rejectingId === id}
+                              onClick={() => handleRejectOffer(request)}
+                            >
+                              <X className="w-4 h-4" />
+                              {rejectingId === id ? 'Rejecting...' : 'Reject Offer'}
+                            </Button>
+                          </>
+                        )}
+
+                        {status === 'confirmed' && (
                           <Button
-                            variant="success"
-                            size="sm"
-                            onClick={() => handleCompleteService(request)}
-                          >
-                            Complete Service
-                          </Button>
-                          <Button
-                            variant="destructive"
                             size="sm"
                             onClick={() => {
                               setSelectedRequest(request);
-                              setShowCancelModal(true);
+                              setShowCompleteModal(true);
                             }}
                           >
-                            Cancel Service
+                            <CheckCircle className="w-4 h-4" />
+                            Complete Service
                           </Button>
-                        </>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -242,31 +784,38 @@ export default function MyRequestsPage() {
         </div>
       </div>
 
-      {/* Cancel Modal */}
+      {/* Complete Modal */}
       <Modal
-        isOpen={showCancelModal}
-        onClose={() => setShowCancelModal(false)}
-        title="Cancel Request"
+        isOpen={showCompleteModal}
+        onClose={() => { setShowCompleteModal(false); setCompletionCode(''); }}
+        title="Complete Service"
         size="sm"
       >
         <div className="space-y-4">
-          <p>Are you sure you want to cancel this request?</p>
+          <p className="text-sm text-muted-foreground">
+            Enter the completion code provided by your service provider.
+          </p>
+          <Input
+            label="Completion Code"
+            placeholder="Enter code..."
+            value={completionCode}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompletionCode(e.target.value)}
+          />
           <div className="flex gap-3">
             <Button
               variant="outline"
-              onClick={() => setShowCancelModal(false)}
+              onClick={() => { setShowCompleteModal(false); setCompletionCode(''); }}
               className="flex-1"
-              disabled={cancelling}
+              disabled={isCompleting}
             >
-              No, Keep It
+              Cancel
             </Button>
             <Button
-              variant="destructive"
-              onClick={handleCancelRequest}
+              onClick={handleCompleteService}
               className="flex-1"
-              disabled={cancelling}
+              disabled={isCompleting || !completionCode.trim()}
             >
-              {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
+              {isCompleting ? 'Completing...' : 'Confirm'}
             </Button>
           </div>
         </div>
@@ -276,286 +825,3 @@ export default function MyRequestsPage() {
     </div>
   );
 }
-
-// import { useState, useEffect } from 'react';
-// import { Link, useNavigate } from 'react-router';
-// import { Calendar, DollarSign, X, Check, Eye, Clock, FileX } from 'lucide-react';
-// import { toast } from 'sonner';
-// import CustomerNavbar from '../../components/layout/CustomerNavbar';
-// import Card from '../../components/ui/Card';
-// import Footer from '../../components/layout/Footer';
-// import Badge from '../../components/ui/Badge';
-// import Button from '../../components/ui/Button';
-// import Modal from '../../components/ui/Modal';
-// import EmptyState from '../../components/ui/EmptyState';
-// import { SkeletonCard } from '../../components/ui/Skeleton';
-
-// type RequestStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'rejected' | 'outdated';
-
-// const mockRequests = [
-//   {
-//     id: 1,
-//     providerName: 'Robert Johnson',
-//     providerPhoto: 'https://i.pravatar.cc/150?img=12',
-//     category: 'Electrician',
-//     scheduledDate: '2026-05-20',
-//     startTime: '09:00',
-//     endTime: '11:00',
-//     status: 'waiting' as const,
-//     price: null,
-//     description: 'Fix electrical outlet in kitchen',
-//   },
-//   {
-//     id: 2,
-//     providerName: 'Maria Garcia',
-//     providerPhoto: 'https://i.pravatar.cc/150?img=5',
-//     category: 'Plumber',
-//     scheduledDate: '2026-05-18',
-//     startTime: '14:00',
-//     endTime: '16:00',
-//     status: 'pending' as const,
-//     price: 150,
-//     description: 'Bathroom sink repair',
-//   },
-//   {
-//     id: 3,
-//     providerName: 'James Wilson',
-//     providerPhoto: 'https://i.pravatar.cc/150?img=15',
-//     category: 'Carpenter',
-//     scheduledDate: '2026-05-16',
-//     startTime: '10:00',
-//     endTime: '15:00',
-//     status: 'confirmed' as const,
-//     price: 300,
-//     description: 'Build custom bookshelf',
-//   },
-//   {
-//     id: 4,
-//     providerName: 'Sarah Anderson',
-//     providerPhoto: 'https://i.pravatar.cc/150?img=9',
-//     category: 'Painter',
-//     scheduledDate: '2026-05-12',
-//     startTime: '08:00',
-//     endTime: '17:00',
-//     status: 'completed' as const,
-//     price: 250,
-//     description: 'Living room wall painting',
-//   },
-// ];
-
-// export default function MyRequestsPage() {
-//   const navigate = useNavigate();
-//   const [activeTab, setActiveTab] = useState<RequestStatus>('all');
-//   const [showCancelModal, setShowCancelModal] = useState(false);
-//   const [selectedRequest, setSelectedRequest] = useState<typeof mockRequests[0] | null>(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const timer = setTimeout(() => setLoading(false), 800);
-//     return () => clearTimeout(timer);
-//   }, []);
-
-//   const tabs: { value: RequestStatus; label: string }[] = [
-//     { value: 'all', label: 'All' },
-//     { value: 'waiting', label: 'Waiting' },
-//     { value: 'pending', label: 'Pending' },
-//     { value: 'confirmed', label: 'Confirmed' },
-//     { value: 'completed', label: 'Completed' },
-//     { value: 'rejected', label: 'Rejected' },
-//     { value: 'outdated', label: 'Outdated' },
-//   ];
-
-//   const filteredRequests =
-//     activeTab === 'all'
-//       ? mockRequests
-//       : mockRequests.filter((req) => req.status === activeTab);
-
-//   const handleCancelRequest = () => {
-//     toast.success('Request cancelled successfully');
-//     setShowCancelModal(false);
-//     setSelectedRequest(null);
-//   };
-
-//   const handleAcceptOffer = (request: typeof mockRequests[0]) => {
-//     toast.success('Offer accepted! Request confirmed.');
-//   };
-
-//   const handleRejectOffer = (request: typeof mockRequests[0]) => {
-//     toast.success('Offer rejected');
-//   };
-
-//   const handleCompleteService = (request: typeof mockRequests[0]) => {
-//     navigate('/complete-service', { state: { requestId: request.id } });
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-background">
-//       <CustomerNavbar />
-
-//       <div className="container mx-auto px-4 lg:px-8 py-8">
-//         <div className="mb-8">
-//           <h1 className="text-3xl font-bold mb-2">My Requests</h1>
-//           <p className="text-muted-foreground">Track and manage your service requests</p>
-//         </div>
-
-//         <div className="mb-6 overflow-x-auto">
-//           <div className="flex gap-2 pb-2">
-//             {tabs.map((tab) => (
-//               <button
-//                 key={tab.value}
-//                 onClick={() => setActiveTab(tab.value)}
-//                 className={`px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-//                   activeTab === tab.value
-//                     ? 'bg-primary text-white'
-//                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
-//                 }`}
-//               >
-//                 {tab.label}
-//               </button>
-//             ))}
-//           </div>
-//         </div>
-
-//         <div className="space-y-4">
-//           {loading ? (
-//             <>
-//               <SkeletonCard />
-//               <SkeletonCard />
-//               <SkeletonCard />
-//             </>
-//           ) : filteredRequests.length === 0 ? (
-//             <EmptyState
-//               icon={<FileX className="w-10 h-10 text-muted-foreground" />}
-//               title="No requests found"
-//               description={`You don't have any ${activeTab === 'all' ? '' : activeTab + ' '}requests yet. Book a service to get started!`}
-//               action={{
-//                 label: 'Browse Services',
-//                 onClick: () => navigate('/customer/services'),
-//               }}
-//             />
-//           ) : (
-//             filteredRequests.map((request) => (
-//               <Card
-//                 key={request.id}
-//                 className="hover:shadow-lg transition-shadow cursor-pointer"
-//                 onClick={() => navigate(`/customer/requests/${request.id}`)}
-//               >
-//                 <div className="flex flex-col md:flex-row gap-6">
-//                   <img
-//                     src={request.providerPhoto}
-//                     alt={request.providerName}
-//                     className="w-24 h-24 rounded-xl object-cover"
-//                   />
-//                   <div className="flex-1">
-//                     <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
-//                       <div>
-//                         <h3 className="text-xl font-semibold mb-1">{request.providerName}</h3>
-//                         <p className="text-sm text-muted-foreground">{request.category}</p>
-//                       </div>
-//                       <Badge variant={request.status}>
-//                         {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-//                       </Badge>
-//                     </div>
-//                     <p className="text-muted-foreground mb-3">{request.description}</p>
-//                     <div className="grid sm:grid-cols-2 gap-3 mb-4">
-//                       <div className="flex items-center gap-2 text-sm">
-//                         <Calendar className="w-4 h-4 text-muted-foreground" />
-//                         <span>Scheduled: {new Date(request.scheduledDate).toLocaleDateString()}</span>
-//                       </div>
-//                       <div className="flex items-center gap-2 text-sm">
-//                         <Clock className="w-4 h-4 text-muted-foreground" />
-//                         <span>{request.startTime} - {request.endTime}</span>
-//                       </div>
-//                     </div>
-//                     {request.price && (
-//                       <div className="flex items-center gap-2 mb-4">
-//                         <DollarSign className="w-5 h-5 text-primary" />
-//                         <span className="text-xl font-bold">${request.price}</span>
-//                       </div>
-//                     )}
-//                     <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
-//                       {request.status === 'waiting' && (
-//                         <Button
-//                           variant="destructive"
-//                           size="sm"
-//                           onClick={() => {
-//                             setSelectedRequest(request);
-//                             setShowCancelModal(true);
-//                           }}
-//                         >
-//                           <X className="w-4 h-4" />
-//                           Cancel Request
-//                         </Button>
-//                       )}
-//                       {request.status === 'pending' && (
-//                         <>
-//                           <Button
-//                             variant="success"
-//                             size="sm"
-//                             onClick={() => handleAcceptOffer(request)}
-//                           >
-//                             <Check className="w-4 h-4" />
-//                             Accept Offer
-//                           </Button>
-//                           <Button
-//                             variant="destructive"
-//                             size="sm"
-//                             onClick={() => handleRejectOffer(request)}
-//                           >
-//                             <X className="w-4 h-4" />
-//                             Reject Offer
-//                           </Button>
-//                         </>
-//                       )}
-//                       {request.status === 'confirmed' && (
-//                         <>
-//                           <Button
-//                             variant="success"
-//                             size="sm"
-//                             onClick={() => handleCompleteService(request)}
-//                           >
-//                             Complete Service
-//                           </Button>
-//                           <Button
-//                             variant="destructive"
-//                             size="sm"
-//                             onClick={() => {
-//                               setSelectedRequest(request);
-//                               setShowCancelModal(true);
-//                             }}
-//                           >
-//                             Cancel Service
-//                           </Button>
-//                         </>
-//                       )}
-//                     </div>
-//                   </div>
-//                 </div>
-//               </Card>
-//             ))
-//           )}
-//         </div>
-//       </div>
-
-//       <Modal
-//         isOpen={showCancelModal}
-//         onClose={() => setShowCancelModal(false)}
-//         title="Cancel Request"
-//         size="sm"
-//       >
-//         <div className="space-y-4">
-//           <p>Are you sure you want to cancel this request?</p>
-//           <div className="flex gap-3">
-//             <Button variant="outline" onClick={() => setShowCancelModal(false)} className="flex-1">
-//               No, Keep It
-//             </Button>
-//             <Button variant="destructive" onClick={handleCancelRequest} className="flex-1">
-//               Yes, Cancel
-//             </Button>
-//           </div>
-//         </div>
-//       </Modal>
-//       <Footer />
-//     </div>
-//   );
-// }

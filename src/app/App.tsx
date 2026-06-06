@@ -13,20 +13,23 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import ChangePassword from './pages/auth/ChangePassword';
 
 // Customer Pages
-import CustomerHome from './pages/customer/CustomerHome';
+import CustomerHome from './pages/customer/Home/CustomerHome';
 import ServicesPage from './pages/customer/Services/ServicesPage';
 import MyRequestsPage from './pages/customer/Requests/MyRequestsPage';
 import CustomerAbout from './pages/customer/CustomerAbout';
 import CustomerProfile from './pages/customer/Profile/CustomerProfile';
+import CustomerRequestDetails from './pages/customer/Requests/RequestDetails';
 
 // Provider Pages
 import ProviderHome from './pages/provider/ProviderHome';
-import ProviderRequests from './pages/provider/ProviderRequests';
-import MyCalendar from './pages/provider/MyCalendar';
+import ProviderRequests from './pages/provider/Requests/ProviderRequests';
+import MyCalendar from './pages/provider/Calendar/MyCalendar';
 import Billing from './pages/provider/Billing';
 import Checkout from './pages/provider/Checkout';
 import ProviderAbout from './pages/provider/ProviderAbout';
-import ProviderProfile from './pages/provider/ProviderProfile';
+import ProviderProfile from './pages/provider/Profile/ProviderProfile';
+import ProviderGuard from './pages/shared/Guard/ProviderGuard';
+import RequestDetails from './pages/provider/Requests/RequestDetails';
 
 // Admin Pages
 import AdminLogin from './pages/admin/Login/AdminLogin';
@@ -34,17 +37,18 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageCustomers from './pages/admin/ManageCustomers/ManageCustomers';
 import ManageProviders from './pages/admin/ManageProviders/ManageProviders';
 import ProviderApproval from './pages/admin/ProviderApproval/ProviderApproval';
-import ManageRequests from './pages/admin/ManageRequests';
+import ManageRequests from './pages/admin/ManageRequests/ManageRequests';
 import ManageAdmins from './pages/admin/ManageAdmins/ManageAdmins';
-import Settings from './pages/admin/Settings';
+import Settings from './pages/admin/Settings/Settings';
+import Details from './pages/admin/Details/Details';
+import AdminRequestDetails from './pages/admin/ManageRequests/AdminRequestDetails';
+import ManageServices from './pages/admin/ManageServices/ManageServices';
 
 // Shared Pages
-import CustomerRequestDetails from './pages/shared/CustomerRequestDetails';
-import ProviderRequestDetails from './pages/shared/ProviderRequestDetails';
-import AdminRequestDetails from './pages/shared/AdminRequestDetails';
 import CustomerPublicProfile from './pages/shared/CustomerPublicProfile';
 import ProviderPublicProfile from './pages/shared/ProviderPublicProfile';
 import CompleteService from './pages/shared/CompleteService';
+
 
 function App() {
   return (
@@ -70,14 +74,14 @@ function App() {
         <Route path="/customer/profile" element={<CustomerProfile />} />
 
         {/* Provider Routes */}
-        <Route path="/provider/home" element={<ProviderHome />} />
-        <Route path="/provider/requests" element={<ProviderRequests />} />
-        <Route path="/provider/requests/:id" element={<ProviderRequestDetails />} />
-        <Route path="/provider/calendar" element={<MyCalendar />} />
-        <Route path="/provider/billing" element={<Billing />} />
-        <Route path="/provider/checkout" element={<Checkout />} />
-        <Route path="/provider/about" element={<ProviderAbout />} />
-        <Route path="/provider/profile" element={<ProviderProfile />} />
+        <Route path="/provider/home" element={<ProviderGuard><ProviderHome /></ProviderGuard>} />
+        <Route path="/provider/requests" element={<ProviderGuard><ProviderRequests /></ProviderGuard>} />
+        <Route path="/provider/requests/:id" element={<ProviderGuard><RequestDetails /></ProviderGuard>} />
+        <Route path="/provider/calendar" element={<ProviderGuard><MyCalendar /></ProviderGuard>} />
+        <Route path="/provider/billing" element={<ProviderGuard><Billing /></ProviderGuard>} />
+        <Route path="/provider/checkout" element={<ProviderGuard><Checkout /></ProviderGuard>} />
+        <Route path="/provider/about" element={<ProviderGuard><ProviderAbout /></ProviderGuard>} />
+        <Route path="/provider/profile" element={<ProviderGuard><ProviderProfile /></ProviderGuard>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
@@ -89,6 +93,8 @@ function App() {
         <Route path="/admin/requests/:id" element={<AdminRequestDetails />} />
         <Route path="/admin/admins" element={<ManageAdmins />} />
         <Route path="/admin/settings" element={<Settings />} />
+        <Route path="/admin/details/:id" element={<Details />} />
+        <Route path="/admin/services" element={<ManageServices />} />
 
         {/* Public Profiles */}
         <Route path="/profile/customer/:id" element={<CustomerPublicProfile />} />

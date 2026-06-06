@@ -31,6 +31,7 @@ import {
 } from "./ProviderSignUpSchema";
 
 import { ProviderSignUpAction } from "./ProviderSignUpActions";
+import { getAllServices } from "../../../shared/Services/ServicesActions";
 
 type StateType = {
   name: string;
@@ -40,20 +41,6 @@ type StateType = {
 type CityType = {
   name: string;
 };
-
-const serviceCategories = [
-  { value: "", label: "Select Service" },
-
-  { value: "PLUMBING", label: "Plumbing" },
-
-  { value: "ELECTRICAL", label: "Electrician" },
-
-  { value: "CLEANING", label: "Cleaning" },
-
-  { value: "PAINTING", label: "Painting" },
-
-  { value: "CARPENTRY", label: "Carpentry" },
-];
 
 export default function ProviderSignUp() {
   const navigate = useNavigate();
@@ -69,6 +56,9 @@ export default function ProviderSignUp() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+
+  const [serviceOptions, setServiceOptions] = useState<{ value: string; label: string }[]>([]);
+  const [loadingServices, setLoadingServices] = useState(false);
 
   const {
     control,
@@ -100,6 +90,29 @@ export default function ProviderSignUp() {
   });
 
   const watchState = watch("state");
+
+  // =========================
+  // LOAD SERVICES
+  // =========================
+  useEffect(() => {
+    const loadServices = async () => {
+      setLoadingServices(true);
+      const result = await getAllServices();
+      setLoadingServices(false);
+
+      if (result.success) {
+        setServiceOptions([
+          { value: '', label: 'Select Service' },
+          ...result.data.map((s: any) => ({
+            value: s._id,
+            label: s.name,
+          })),
+        ]);
+      }
+    };
+
+    loadServices();
+  }, []);
 
   // =========================
   // LOAD STATES
@@ -346,8 +359,8 @@ export default function ProviderSignUp() {
 
     try {
       sessionStorage.setItem("verifyEmail", data.email);
-sessionStorage.setItem("verifyRole", "provider");
-sessionStorage.setItem("verifyType", "register");
+      sessionStorage.setItem("verifyRole", "provider");
+      sessionStorage.setItem("verifyType", "register");
       const formData = new FormData();
 
       formData.append(
@@ -391,8 +404,8 @@ sessionStorage.setItem("verifyType", "register");
 
       formData.append("gender", data.gender);
 
-  const selectedStateName = data.state;
-const selectedCityName = data.city;
+      const selectedStateName = data.state;
+      const selectedCityName = data.city;
 
       formData.append("city", selectedStateName);
       formData.append("state", selectedCityName);
@@ -503,7 +516,6 @@ const selectedCityName = data.city;
             </div>
 
             {/* EMAIL */}
-
             <Controller
               name="email"
               control={control}
@@ -520,7 +532,6 @@ const selectedCityName = data.city;
             />
 
             {/* PHONE + DOB */}
-
             <div className="grid md:grid-cols-2 gap-4">
               <Controller
                 name="mobileNumber"
@@ -573,7 +584,6 @@ const selectedCityName = data.city;
             />
 
             {/* SERVICE */}
-
             <Controller
               name="service"
               control={control}
@@ -581,8 +591,12 @@ const selectedCityName = data.city;
                 <Select
                   label="Service"
                   error={errors.service?.message}
-                  options={serviceCategories}
-                  disabled={isSubmitting}
+                  options={
+                    loadingServices
+                      ? [{ value: '', label: 'Loading services...' }]
+                      : serviceOptions
+                  }
+                  disabled={isSubmitting || loadingServices}
                   {...field}
                 />
               )}

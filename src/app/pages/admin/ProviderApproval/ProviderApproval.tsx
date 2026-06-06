@@ -12,21 +12,23 @@ import {
   approveProvider,
   rejectProvider,
 } from './ProviderApprovalActions';
+import { getDetails } from '../Details/detailsActions';
 
 interface Provider {
   id?: string;
+  _id?: string;
   name?: string;
   cvUrl?: string;
   userName?: string;
   email: string;
-  age: string;
-mobileNumber?: string;
-  service?: string;
+  age?: string | number;
+  mobileNumber?: string;
+  service?: string | { _id: string; name: string };
   specialization?: string;
   nationalNumber?: string;
   cvFile?: string;
   writtenCv?: string;
-profileURL?: string;
+  profileURL?: string;
   createdAt?: string;
   status?: string;
   location?: string;
@@ -34,38 +36,56 @@ profileURL?: string;
   state?: string;
 }
 
-export default function ProviderApproval() {
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
-  const [isApproving, setIsApproving] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
+const DEFAULT_AVATAR =
+  'https://i.pravatar.cc/150?img=3';
 
-  // ============ LOAD PROVIDERS ON MOUNT ============
+export default function ProviderApproval() {
+  const [providers,          setProviders]          = useState<Provider[]>([]);
+  const [loading,            setLoading]            = useState(true);
+  const [showRejectModal,    setShowRejectModal]    = useState(false);
+  const [rejectionReason,    setRejectionReason]    = useState('');
+  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
+  const [isApproving,        setIsApproving]        = useState(false);
+  const [isRejecting,        setIsRejecting]        = useState(false);
+
   useEffect(() => {
     loadPendingProviders();
   }, []);
 
-  // ============ LOAD PENDING PROVIDERS ============
+  // ============ LOAD ============
   const loadPendingProviders = async () => {
     try {
       setLoading(true);
       const result = await getPendingProviders();
 
       if (result.success) {
-        const providersList = Array.isArray(result.data) ? result.data : [];
-        setProviders(providersList);
+        const pendingList = Array.isArray(result.data) ? result.data : [];
 
-        if (providersList.length === 0) {
-          toast.info('No pending providers to review');
-        }
+        const detailed = await Promise.all(
+          pendingList.map(async (p: any) => {
+            const details = await getDetails(p.id || p._id);
+            if (details.success) {
+              return {
+                ...details.data,
+                // احتفظ بالـ service object من الـ pending list
+                service:
+                  typeof p.service === 'object'
+                    ? p.service
+                    : details.data.service,
+                id: p.id || p._id,
+              };
+            }
+            return { ...p, id: p.id || p._id };
+          })
+        );
+
+        setProviders(detailed);
+        if (detailed.length === 0) toast.info('No pending providers to review');
       } else {
         toast.error(result.error || 'Failed to load pending providers');
         setProviders([]);
       }
-    } catch (error) {
+    } catch {
       toast.error('Error loading pending providers');
       setProviders([]);
     } finally {
@@ -73,151 +93,56 @@ export default function ProviderApproval() {
     }
   };
 
-  // ============ HANDLE APPROVE ============
+  // ============ APPROVE ============
   const handleApprove = async (provider: Provider) => {
-    try {
-      setIsApproving(true);
-      const providerId = provider.id
+    const providerId = provider.id || provider._id;
+    if (!providerId) { toast.error('Invalid provider ID'); return; }
 
-      if (!providerId) {
-        toast.error('Invalid provider ID');
-        return;
-      }
+    setIsApproving(true);
+    const result = await approveProvider(providerId);
+    setIsApproving(false);
 
-      const result = await approveProvider(providerId);
-
-      if (result.success) {
-        toast.success(result.message || 'Provider approved successfully');
-        setProviders(providers.filter((p) => (p.id ) !== providerId));
-
-        if (providers.length === 1) {
-          toast.info('No more pending providers');
-        }
-      } else {
-        toast.error(result.error || 'Failed to approve provider');
-      }
-    } catch (error) {
-      toast.error('Error approving provider');
-    } finally {
-      setIsApproving(false);
+    if (result.success) {
+      toast.success(result.message || 'Provider approved successfully');
+      setProviders((prev) => prev.filter((p) => (p.id || p._id) !== providerId));
+    } else {
+      toast.error(result.error || 'Failed to approve provider');
     }
   };
 
-  // ============ HANDLE REJECT ============
+  // ============ REJECT ============
   const handleReject = async () => {
-    if (!selectedProviderId) {
-      toast.error('Invalid provider ID');
-      return;
-    }
+    if (!selectedProviderId)       { toast.error('Invalid provider ID');           return; }
+    if (!rejectionReason.trim())   { toast.error('Please provide a reason');       return; }
 
-    if (!rejectionReason.trim()) {
-      toast.error('Please provide a rejection reason');
-      return;
-    }
+    setIsRejecting(true);
+    const result = await rejectProvider(selectedProviderId, rejectionReason);
+    setIsRejecting(false);
 
-    try {
-      setIsRejecting(true);
-      const result = await rejectProvider(selectedProviderId, rejectionReason);
-
-      if (result.success) {
-        toast.success(result.message || 'Provider rejected successfully');
-        setProviders(
-          providers.filter((p) => (p.id ) !== selectedProviderId)
-        );
-        setShowRejectModal(false);
-        setRejectionReason('');
-        setSelectedProviderId(null);
-
-        if (providers.length === 1) {
-          toast.info('No more pending providers');
-        }
-      } else {
-        toast.error(result.error || 'Failed to reject provider');
-      }
-    } catch (error) {
-      toast.error('Error rejecting provider');
-    } finally {
-      setIsRejecting(false);
+    if (result.success) {
+      toast.success(result.message || 'Provider rejected successfully');
+      setProviders((prev) =>
+        prev.filter((p) => (p.id || p._id) !== selectedProviderId)
+      );
+      setShowRejectModal(false);
+      setRejectionReason('');
+      setSelectedProviderId(null);
+    } else {
+      toast.error(result.error || 'Failed to reject provider');
     }
   };
 
-  // ============ GET PROVIDER NAME ============
-  const getProviderName = (provider: Provider): string => {
-    if (provider.userName) {
-      return provider.userName;
-    }
-    return 'Provider';
+  // ============ HELPERS ============
+  const getName     = (p: Provider) => p.userName || p.name || p.email || 'Provider';
+  const getPhoto    = (p: Provider) => p.profileURL || DEFAULT_AVATAR;
+  const getCategory = (p: Provider) => {
+    if (typeof p.service === 'object' && p.service !== null)
+      return (p.service as any).name || '—';
+    return (p.service as string) || '—';
   };
-
-  // ============ GET PROVIDER PHOTO ============
-  const getProviderPhoto = (provider: Provider): string => {
-    return (
-      provider.profileURL ||
-      'https://tse4.mm.bing.net/th/id/OIP.23wzRzOwtSR-WAQZM4mWzAHaHa?r=0&cb=thfc1falcon&rs=1&pid=ImgDetMain&o=7&rm=3'
-    );
-  };
-
-  // ============ GET PROVIDER EMAIL ============
-  const getProviderEmail = (provider: Provider): string => {
-    return provider.email || 'No email provided';
-  };
-
-   // ============ GET AGE ============
-  const getProviderAge = (provider: Provider): string => {
-    return (
-      provider.age||
-      'No age provided '
-    );
-  };
-
-  // ============ GET PROVIDER PHONE ============
-  // const getProviderPhone = (provider: Provider): string => {
-  //   return provider.mobileNumber || 'No phone provided';
-  // };
-
-  // ============ GET PROVIDER CATEGORY ============
-  const getProviderCategory = (provider: Provider): string => {
-    return provider.service || 'No category specified';
-  };
-
-    // ============ GET PROVIDER ID ============
-  const getProviderId = (provider: Provider): string => {
-    return provider.nationalNumber || 'No ID provided';
-  };
-
-  // ============ GET PROVIDER SPECIALIZATION ============
-  const getProviderSpecialization = (provider: Provider): string => {
-    return (
-      provider.specialization ||
-      'No specialization provided'
-    );
-  };
-
-  // ============ GET CV TEXT ============
-  const getProviderCV = (provider: Provider): string => {
-    return (
-      provider.writtenCv ||
-      'No CV provided'
-    );
-  };
-
-  // ============ GET CV FILE ============
-  const getProviderCVFile = (provider: Provider): string | null => {
-    return provider.cvUrl || null;
-  };
-
-  // ============ GET PROVIDER LOCATION ============
-  const getProviderLocation = (provider: Provider): string => {
-    if (provider.city && provider.state) {
-      return `${provider.city}, ${provider.state}`;
-    }
-    if (provider.location) {
-      return provider.location;
-    }
-    if (provider.city) {
-      return provider.city;
-    }
-    return 'Location not specified';
+  const getLocation = (p: Provider) => {
+    if (p.city && p.state) return `${p.city}, ${p.state}`;
+    return p.city || p.location || 'Not specified';
   };
 
   return (
@@ -234,122 +159,101 @@ export default function ProviderApproval() {
 
         <div className="space-y-6">
           {loading ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
+            <><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
           ) : providers.length === 0 ? (
             <Card>
               <div className="text-center py-8">
                 <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  No pending providers to review
-                </p>
-                <Button variant="outline" onClick={loadPendingProviders}>
-                  Refresh
-                </Button>
+                <p className="text-muted-foreground mb-4">No pending providers to review</p>
+                <Button variant="outline" onClick={loadPendingProviders}>Refresh</Button>
               </div>
             </Card>
           ) : (
             providers.map((provider) => (
-              <Card key={provider.id}>
-                {/* ============ HEADER SECTION ============ */}
+              <Card key={provider.id || provider._id}>
+
+                {/* HEADER */}
                 <div className="flex items-start gap-6 mb-8 pb-6 border-b">
                   <img
-                    src={getProviderPhoto(provider)}
-                    alt={getProviderName(provider)}
+                    src={getPhoto(provider)}
+                    alt={getName(provider)}
                     className="w-28 h-28 rounded-full object-cover flex-shrink-0"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR;
+                    }}
                   />
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2">
-                      {getProviderName(provider)}
-                    </h3>
-
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <h3 className="text-2xl font-bold mb-4">{getName(provider)}</h3>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs text-muted-foreground font-semibold">
-                          EMAIL
-                        </p>
-                        <p className="text-sm">{getProviderEmail(provider)}</p>
+                        <p className="text-xs text-muted-foreground font-semibold">EMAIL</p>
+                        <p className="text-sm">{provider.email || '—'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground font-semibold">
-                          Age
-                        </p>
-                        <p className="text-sm">{getProviderAge(provider)}</p>
-                      </div>
-                      {/* <div>
-                        <p className="text-xs text-muted-foreground font-semibold">
-                          PHONE
-                        </p>
-                        <p className="text-sm">{getProviderPhone(provider)}</p>
-                      </div> */}
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold">
-                          CATEGORY
-                        </p>
-                        <p className="text-sm">{getProviderCategory(provider)}</p>
-                      </div>
-              
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold">
-                          NATIONAL ID
-                        </p>
-                          <p className="text-sm">{getProviderId(provider)}</p>
+                        <p className="text-xs text-muted-foreground font-semibold">AGE</p>
+                        <p className="text-sm">{provider.age || '—'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground font-semibold">
-                          LOCATION
-                        </p>
-                        <p className="text-sm">{getProviderLocation(provider)}</p>
+                        <p className="text-xs text-muted-foreground font-semibold">PHONE</p>
+                        <p className="text-sm">{provider.mobileNumber || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-semibold">CATEGORY</p>
+                        <p className="text-sm">{getCategory(provider)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-semibold">NATIONAL ID</p>
+                        <p className="text-sm">{provider.nationalNumber || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-semibold">LOCATION</p>
+                        <p className="text-sm">{getLocation(provider)}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ============ DETAILS SECTION ============ */}
-                <div className="space-y-6 mb-8">
-                  {/* Specialization */}
-                  <div>
+                {/* SPECIALIZATION */}
+                {provider.specialization && (
+                  <div className="mb-6">
                     <h4 className="font-semibold text-lg mb-2">Specialization</h4>
                     <p className="text-muted-foreground leading-relaxed">
-                      {getProviderSpecialization(provider)}
+                      {provider.specialization}
                     </p>
                   </div>
-                </div>
+                )}
 
-                {/* ============ CV SECTION ============ */}
-                {getProviderCVFile(provider) && (
+                {/* CV FILE */}
+                {provider.cvUrl && (
                   <div className="mb-6">
                     <h4 className="font-semibold text-lg mb-2">CV Document</h4>
                     <div className="flex items-center gap-3 p-4 bg-muted rounded-lg hover:bg-muted/80 transition">
                       <FileText className="w-6 h-6 text-blue-600 flex-shrink-0" />
                       <a
-                        href={getProviderCVFile(provider)}
+                        href={provider.cvUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:underline font-medium flex-1"
                       >
-                        Download CV
+                        Open CV
                       </a>
                     </div>
                   </div>
                 )}
 
-                {/* ============ WRITTEN CV SECTION ============ */}
-                {getProviderCV(provider) !== 'No CV provided' && (
+                {/* WRITTEN CV */}
+                {provider.writtenCv && provider.writtenCv !== 'No CV provided' && (
                   <div className="mb-6">
                     <h4 className="font-semibold text-lg mb-2">Written CV</h4>
                     <div className="p-4 bg-muted rounded-lg">
-                      <p className="text-muted-foreground leading-relaxed text-sm line-clamp-4">
-                        {getProviderCV(provider)}
+                      <p className="text-muted-foreground text-sm leading-relaxed line-clamp-4">
+                        {provider.writtenCv}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {/* ============ ACTION BUTTONS ============ */}
+                {/* ACTIONS */}
                 <div className="flex gap-3 pt-6 border-t">
                   <Button
                     variant="success"
@@ -363,7 +267,7 @@ export default function ProviderApproval() {
                   <Button
                     variant="destructive"
                     onClick={() => {
-                      setSelectedProviderId(provider.id || null);
+                      setSelectedProviderId(provider.id || provider._id || null);
                       setShowRejectModal(true);
                     }}
                     disabled={isApproving || isRejecting}
@@ -373,12 +277,13 @@ export default function ProviderApproval() {
                     Reject Application
                   </Button>
                 </div>
+
               </Card>
             ))
           )}
         </div>
 
-        {/* ============ REJECT MODAL ============ */}
+        {/* REJECT MODAL */}
         <Modal
           isOpen={showRejectModal}
           onClose={() => setShowRejectModal(false)}
@@ -413,6 +318,7 @@ export default function ProviderApproval() {
             </div>
           </div>
         </Modal>
+
       </div>
     </div>
   );
