@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import AdminSidebar from '../../../components/layout/AdminSidebar';
 import Card from '../../../components/ui/Card';
 import Badge from '../../../components/ui/Badge';
-import { getDetails } from './detailsActions';
+import { getDetails } from './DetailsActions';
 import { getAllServices } from './../../shared/Services/ServicesActions';
 
 
