@@ -534,7 +534,7 @@ export default function CustomerRequestDetails() {
                 </div>
               )}
 
-           
+     
             </Card>
           </div>
 

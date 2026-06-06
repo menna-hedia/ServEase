@@ -12,7 +12,7 @@ import {
   approveProvider,
   rejectProvider,
 } from './ProviderApprovalActions';
-import { getDetails } from '../Details/detailsActions';
+import { getDetails } from '../Details/DetailsActions';
 
 interface Provider {
   id?: string;
