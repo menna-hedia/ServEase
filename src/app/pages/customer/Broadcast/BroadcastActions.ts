@@ -142,24 +142,24 @@ export async function createBroadcastRequest(data: {
 }
 
 // ============ CUSTOMER — GET OFFERS FOR BROADCAST ============
-// export async function getBroadcastOffers(requestId: string) {
-//   try {
-//     const res = await fetch(`/api/service-requests/broadcast/${requestId}/offers`, {
-//       headers: { Authorization: `Bearer ${getToken()}` },
-//     });
-//     const result = await res.json();
-//     if (res.ok) {
-//       const normalized = {
-//         requestStatus: result.requestStatus || result.status || '',
-//         offers: Array.isArray(result) ? result : (result.offers || []),
-//       };
-//       return { success: true, data: normalized };
-//     }
-//     return { success: false, error: result.message || 'Failed to fetch offers' };
-//   } catch (error) {
-//     return { success: false, error: error instanceof Error ? error.message : 'Network error' };
-//   }
-// }
+export async function getBroadcastOffers(requestId: string) {
+  try {
+    const res = await fetch(`/api/service-requests/broadcast/${requestId}/offers`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    const result = await res.json();
+    if (res.ok) {
+      const normalized = {
+        requestStatus: result.requestStatus || result.status || '',
+        offers: Array.isArray(result) ? result : (result.offers || []),
+      };
+      return { success: true, data: normalized };
+    }
+    return { success: false, error: result.message || 'Failed to fetch offers' };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Network error' };
+  }
+}
 
 // ============ CUSTOMER — SELECT OFFER ============
 export async function selectBroadcastOffer(requestId: string, offerId: string) {
