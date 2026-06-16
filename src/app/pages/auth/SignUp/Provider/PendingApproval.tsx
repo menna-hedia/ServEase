@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router-dom';
 import { Home, Clock, CheckCircle, FileCheck } from 'lucide-react';
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
@@ -9,48 +9,25 @@ export default function PendingApproval() {
   const navigate = useNavigate();
   const [checking, setChecking] = useState(false);
 
-//  const handleCheckStatus = async () => {
-//   try {
-//     const token = localStorage.getItem('access_token');
-//     const res = await fetch('/api/provider/', {
-//       headers: { Authorization: `Bearer ${token}` },
-//     });
-//     const data = await res.json();
+  const handleCheckStatus = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch('/api/provider/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      const profile = data.provider || data.data || data;
+      console.log('profile:', profile);
 
-   
-//     const profile = data.provider || data.data || data;
-
-//     // console.log('adminApproved:', profile.adminApproved); 
-
-//     if (profile.adminApproved === 'Active') {
-//       navigate('/provider/home', { replace: true });
-//     } else {
-//       toast.info('Your application is still under review');
-//     }
-//   } catch {
-//     toast.error('Failed to check status');
-//   }
-// };
-
-const handleCheckStatus = async () => {
-  try {
-    const token = localStorage.getItem('access_token');
-    const res = await fetch('/api/provider/profile', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    const profile = data.provider || data.data || data;
-    console.log('profile:', profile);
-
-    if (profile.adminApproved === 'Active') {
-      navigate('/provider/home', { replace: true });
-    } else {
-      toast.info('Your application is still under review');
+      if (profile.adminApproved === 'Active') {
+        navigate('/provider/home', { replace: true });
+      } else {
+        toast.info('Your application is still under review');
+      }
+    } catch {
+      toast.error('Failed to check status');
     }
-  } catch {
-    toast.error('Failed to check status');
-  }
-};
+  };
 
   if (checking) {
     return (
@@ -135,8 +112,8 @@ const handleCheckStatus = async () => {
 
           <div className="flex gap-3 justify-center">
             <Button onClick={handleCheckStatus}>
-  Check Status
-</Button>
+              Check Status
+            </Button>
           </div>
         </Card>
       </div>

@@ -9,8 +9,8 @@ export async function getCustomers(params: {
 
     const query = new URLSearchParams();
     if (params.search) query.append('search', params.search);
-    if (params.city)   query.append('city', params.city);
-    if (params.page)   query.append('page', String(params.page));
+    if (params.city) query.append('city', params.city);
+    if (params.page) query.append('page', String(params.page));
     query.append('limit', String(params.limit || 100));
 
     const res = await fetch(`/api/admin/customers?${query.toString()}`, {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import Card from '../../components/ui/Card';
@@ -132,3 +132,4 @@ export default function CompleteService() {
     </div>
   );
 }
+

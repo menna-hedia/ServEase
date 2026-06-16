@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Star, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,32 +13,32 @@ import { SkeletonCard } from '../../../components/ui/Skeleton';
 import { getProviders, deleteProvider } from './ManageProvidersActions';
 import { getAllServices } from '../../shared/Services/ServicesActions';
 import { getStates, getCities } from '../../../services/locationService';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 export default function ManageProviders() {
   const navigate = useNavigate();
 
-  const [providers,        setProviders]        = useState<any[]>([]);
-  const [loading,          setLoading]          = useState(true);
-  const [isDeleting,       setIsDeleting]       = useState(false);
-  const [showDeleteModal,  setShowDeleteModal]  = useState(false);
+  const [providers, setProviders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [providerToDelete, setProviderToDelete] = useState<any | null>(null);
-  const [currentPage,      setCurrentPage]      = useState(1);
-  const [totalPages,       setTotalPages]       = useState(1);
-  const [totalProviders,   setTotalProviders]   = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProviders, setTotalProviders] = useState(0);
 
   // ── Filters ──────────────────────────────────────────────
-  const [searchTerm,       setSearchTerm]       = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedState,    setSelectedState]    = useState('');
-  const [selectedCity,     setSelectedCity]     = useState('');
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
 
   // ── Dropdowns data ───────────────────────────────────────
-  const [categories,     setCategories]     = useState([{ value: '', label: 'All Categories' }]);
-  const [states,         setStates]         = useState<any[]>([]);
-  const [cities,         setCities]         = useState<any[]>([]);
-  const [loadingStates,  setLoadingStates]  = useState(false);
-  const [loadingCities,  setLoadingCities]  = useState(false);
+  const [categories, setCategories] = useState([{ value: '', label: 'All Categories' }]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   // Load services + states on mount
   useEffect(() => {
@@ -88,8 +87,8 @@ export default function ManageProviders() {
     setLoading(true);
     const result = await getProviders({
       search: searchTerm || undefined,
-      city:   selectedCity || selectedState || undefined,
-      page:   currentPage,
+      city: selectedCity || selectedState || undefined,
+      page: currentPage,
     });
     setLoading(false);
 
@@ -115,9 +114,9 @@ export default function ManageProviders() {
   // ── Category filter (client-side) ────────────────────────
   const filteredProviders = selectedCategory
     ? providers.filter((p) => {
-        const serviceName = typeof p.service === 'object' ? p.service?.name : p.service;
-        return serviceName === selectedCategory;
-      })
+      const serviceName = typeof p.service === 'object' ? p.service?.name : p.service;
+      return serviceName === selectedCategory;
+    })
     : providers;
 
   // ── Delete ───────────────────────────────────────────────

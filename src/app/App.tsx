@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import ChatbotDrawer from './components/shared/ChatbotDrawer';
 
@@ -19,6 +19,7 @@ import MyRequestsPage from './pages/customer/Requests/MyRequestsPage';
 import CustomerAbout from './pages/customer/CustomerAbout';
 import CustomerProfile from './pages/customer/Profile/CustomerProfile';
 import CustomerRequestDetails from './pages/customer/Requests/RequestDetails';
+import BroadcastOffersPage from './pages/customer/Broadcast/BroadcastOffersPage';
 
 // Provider Pages
 import ProviderHome from './pages/provider/ProviderHome';
@@ -30,6 +31,7 @@ import ProviderAbout from './pages/provider/ProviderAbout';
 import ProviderProfile from './pages/provider/Profile/ProviderProfile';
 import ProviderGuard from './pages/shared/Guard/ProviderGuard';
 import RequestDetails from './pages/provider/Requests/RequestDetails';
+import ProviderBroadcastPage from './pages/provider/Broadcast/ProviderBroadcastPage';
 
 // Admin Pages
 import AdminLogin from './pages/admin/Login/AdminLogin';
@@ -72,6 +74,7 @@ function App() {
         <Route path="/customer/requests/:id" element={<CustomerRequestDetails />} />
         <Route path="/customer/about" element={<CustomerAbout />} />
         <Route path="/customer/profile" element={<CustomerProfile />} />
+        <Route path="/customer/broadcast/:id/offers" element={<BroadcastOffersPage />} />
 
         {/* Provider Routes */}
         <Route path="/provider/home" element={<ProviderGuard><ProviderHome /></ProviderGuard>} />
@@ -82,6 +85,7 @@ function App() {
         <Route path="/provider/checkout" element={<ProviderGuard><Checkout /></ProviderGuard>} />
         <Route path="/provider/about" element={<ProviderGuard><ProviderAbout /></ProviderGuard>} />
         <Route path="/provider/profile" element={<ProviderGuard><ProviderProfile /></ProviderGuard>} />
+        <Route path="/provider/broadcasts" element={<ProviderBroadcastPage />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
@@ -112,3 +116,4 @@ function App() {
 }
 
 export default App;
+

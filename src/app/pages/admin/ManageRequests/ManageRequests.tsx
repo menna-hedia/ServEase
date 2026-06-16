@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Eye, FileX, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminSidebar from '../../../components/layout/AdminSidebar';
@@ -16,30 +16,30 @@ import { getAdminRequests, cancelAdminRequest } from './ManageRequestsActions';
 type RequestStatus = 'confirmed' | 'waiting' | 'pending' | 'completed' | 'refused' | 'outdated';
 
 const STATUS_OPTIONS = [
-  { value: '',          label: 'All Statuses' },
-  { value: 'waiting',   label: 'Waiting'      },
-  { value: 'pending',   label: 'Pending'      },
-  { value: 'confirmed', label: 'Confirmed'    },
-  { value: 'completed', label: 'Completed'    },
-  { value: 'refused',  label: 'Refused'     },
-  { value: 'outdated',  label: 'Outdated'     },
+  { value: '', label: 'All Statuses' },
+  { value: 'waiting', label: 'Waiting' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'confirmed', label: 'Confirmed' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'refused', label: 'Refused' },
+  { value: 'outdated', label: 'Outdated' },
 ];
 
 export default function ManageRequests() {
   const navigate = useNavigate();
 
-  const [requests,        setRequests]        = useState<any[]>([]);
-  const [allRequests,     setAllRequests]     = useState<any[]>([]); // للـ client-side filter
-  const [loading,         setLoading]         = useState(true);
-  const [statusFilter,    setStatusFilter]    = useState('');
-  const [minPrice,        setMinPrice]        = useState('');
-  const [maxPrice,        setMaxPrice]        = useState('');
-  const [currentPage,     setCurrentPage]     = useState(1);
-  const [totalPages,      setTotalPages]      = useState(1);
-  const [totalRequests,   setTotalRequests]   = useState(0);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [allRequests, setAllRequests] = useState<any[]>([]); // للـ client-side filter
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRequests, setTotalRequests] = useState(0);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [requestToCancel, setRequestToCancel] = useState<any | null>(null);
-  const [isCancelling,    setIsCancelling]    = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // ============ FETCH ============
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function ManageRequests() {
       if (result.success) {
         const data = Array.isArray(result.data) ? result.data : [];
         setAllRequests(data);
-        setTotalPages(result.totalPages    ?? 1);
+        setTotalPages(result.totalPages ?? 1);
         setTotalRequests(result.totalRequests ?? data.length);
       } else {
         toast.error(result.error || 'Failed to load requests');
@@ -191,7 +191,7 @@ export default function ManageRequests() {
                 </thead>
                 <tbody>
                   {requests.map((request) => {
-                    const id     = request._id || request.id;
+                    const id = request._id || request.id;
                     const status = (request.status || '').toLowerCase() as RequestStatus;
 
                     return (

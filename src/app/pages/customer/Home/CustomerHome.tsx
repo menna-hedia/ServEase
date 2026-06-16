@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Footer from '../../../components/layout/Footer';
@@ -12,8 +12,8 @@ import { SkeletonCard } from '../../../components/ui/Skeleton';
 import { toast } from 'sonner';
 import { getGlobalReviews, submitGlobalReview } from './ReviewActions';
 import { getAllServices } from '../../shared/Services/ServicesActions';
-
-const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
+import { useNavigate } from 'react-router-dom';
+import CreateBroadcastModal from '../Broadcast/CreateBroadcastModal';
 
 const categoryIcons: Record<string, { icon: string; color: string }> = {
   'Plumbing': { icon: '🔧', color: 'bg-blue-100' },
@@ -45,6 +45,9 @@ export default function CustomerHome() {
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+const navigate = useNavigate();
+const [showBroadcast, setShowBroadcast] = useState(false);
+const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
   // ============ LOAD DATA ============
   useEffect(() => {
     const load = async () => {
@@ -126,28 +129,46 @@ export default function CustomerHome() {
       <div className="container mx-auto px-4 lg:px-8 py-8">
 
         {/* ── Hero ── */}
-        <section className="mb-12">
-          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent rounded-3xl p-8 lg:p-16">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-2xl" />
-            <div className="relative z-10 max-w-3xl">
-              <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white leading-tight">
-                Find Your Perfect
-                <br />
-                <span className="text-white/90">Home Service</span>
-              </h1>
-              <p className="text-xl lg:text-2xl text-white/90 mb-8 max-w-2xl">
-                Connect with verified professionals for all your home service needs.
-              </p>
-              <Link to="/customer/services">
-                <Button size="lg" variant="secondary" className="shadow-xl">
-                  Browse Services →
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
+     <section className="mb-12">
+  <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent rounded-3xl p-8 lg:p-16">
+    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+    <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-2xl" />
 
+    <div className="relative z-10 max-w-3xl">
+      <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white leading-tight">
+        Find Your Perfect
+        <br />
+        <span className="text-white/90">Home Service</span>
+      </h1>
+      <p className="text-xl lg:text-2xl text-white/90 mb-8 max-w-2xl">
+        Connect with verified professionals for all your home service needs.
+      </p>
+
+      <div className="flex flex-wrap gap-4">
+        <Link to="/customer/services">
+          <Button size="lg" variant="secondary" className="shadow-xl">
+            Browse Services →
+          </Button>
+        </Link>
+
+        <Button
+          size="lg"
+          variant="outline"
+          className="shadow-xl border-white text-white hover:bg-white hover:text-primary transition-colors"
+          onClick={() => setShowBroadcast(true)}
+        >
+          Broadcast Request
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<CreateBroadcastModal
+  isOpen={showBroadcast}
+  onClose={() => setShowBroadcast(false)}
+  onSuccess={(requestId) => navigate(`/customer/broadcast/${requestId}/offers`)}
+/>
         {/* ── Categories ── */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Popular Categories</h2>

@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router';
+import { Navigate } from 'react-router-dom';
 
 export default function ProviderGuard({ children }: { children: React.ReactNode }) {
   const token    = localStorage.getItem('access_token');

@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Home, Facebook, Twitter, Instagram, Linkedin, Mail, Phone } from 'lucide-react';
 
 export default function Footer() {
@@ -81,3 +81,4 @@ export default function Footer() {
     </footer>
   );
 }
+

@@ -10,7 +10,7 @@ export async function getCustomerProfile() {
     });
 
     const result = await res.json();
-console.log('Profile API response:', result);
+    console.log('Profile API response:', result);
     if (res.ok) {
       return { success: true, data: result };
     }

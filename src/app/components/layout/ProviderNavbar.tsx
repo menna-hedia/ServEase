@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
-import { Home, Menu, X, LogOut, Briefcase, Calendar, DollarSign, Info, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Menu, X, LogOut, Briefcase, Calendar, DollarSign, Info, User , Radio } from 'lucide-react';
 import ChatbotDrawer from '../shared/ChatbotDrawer';
 import { logoutAction } from '../../pages/auth/logout';
 import { toast } from 'sonner'
@@ -13,6 +13,7 @@ export default function ProviderNavbar() {
   const navItems = [
     { path: '/provider/home', label: 'Home', icon: Home },
     { path: '/provider/requests', label: 'Requests', icon: Briefcase },
+    { path: '/provider/broadcasts', label: 'Broadcasts', icon: Radio      }, 
     { path: '/provider/calendar', label: 'Calendar', icon: Calendar },
     { path: '/provider/billing', label: 'Billing', icon: DollarSign },
     { path: '/provider/about', label: 'About', icon: Info },
@@ -110,3 +111,4 @@ export default function ProviderNavbar() {
     </nav>
   );
 }
+

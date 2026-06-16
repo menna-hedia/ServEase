@@ -21,7 +21,7 @@ export async function getSettings() {
     }
 
     const text = await res.text();
-    
+
     if (!text) {
       return {
         success: true,
@@ -38,7 +38,7 @@ export async function getSettings() {
 
     const result = JSON.parse(text);
     console.log('Settings loaded:', result);
-    
+
     return {
       success: true,
       data: result,
@@ -270,7 +270,7 @@ export async function updateProviderCancelCount(cancelCount: number) {
     console.log('Response status:', res.status);
 
     if (res.status === 204 || res.status === 200) {
-  
+
       const verifyResult = await getSettings();
       console.log('Verified settings:', verifyResult.data);
 

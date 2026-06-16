@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { CreditCard, Lock, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import ProviderNavbar from '../../components/layout/ProviderNavbar';
@@ -135,3 +135,4 @@ export default function Checkout() {
     </div>
   );
 }
+

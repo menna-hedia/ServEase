@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft, MapPin, Calendar, Clock,
   AlertTriangle, User, Briefcase,
@@ -14,47 +14,47 @@ import Textarea from '../../../components/ui/Textarea';
 import { cancelAdminRequest } from './ManageRequestsActions';
 import { getSettings } from '../Settings/SettingsActions';
 import { SettingsData } from './../Settings/Settings';
-  import { getAllServices } from '../../shared/Services/ServicesActions';
+import { getAllServices } from '../../shared/Services/ServicesActions';
 
 const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
 
 type RequestStatus = 'confirmed' | 'waiting' | 'pending' | 'completed' | 'refused' | 'outdated';
 
 export default function AdminRequestDetails() {
-  const { id }       = useParams<{ id: string }>();
-  const navigate     = useNavigate();
-  const location     = useLocation();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const request = location.state?.request;
 
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelReason,    setCancelReason]    = useState('');
-  const [isCancelling,    setIsCancelling]    = useState(false);
-  const [currentStatus,   setCurrentStatus]   = useState(request?.status || '');
-  const [commission,      setCommission]      = useState('0');
-  const [cancelFee,       setCancelFee]       = useState('0');
-  const [loading,         setLoading]         = useState(true);
-  const [customerData,    setCustomerData]    = useState<any>(null);
-  const [providerData,    setProviderData]    = useState<any>(null);
-
- 
-const [services, setServices] = useState<any[]>([]);
+  const [cancelReason, setCancelReason] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(request?.status || '');
+  const [commission, setCommission] = useState('0');
+  const [cancelFee, setCancelFee] = useState('0');
+  const [loading, setLoading] = useState(true);
+  const [customerData, setCustomerData] = useState<any>(null);
+  const [providerData, setProviderData] = useState<any>(null);
 
 
-useEffect(() => {
-  const loadServices = async () => {
-    const result = await getAllServices();
-    if (result.success) setServices(result.data);
+  const [services, setServices] = useState<any[]>([]);
+
+
+  useEffect(() => {
+    const loadServices = async () => {
+      const result = await getAllServices();
+      if (result.success) setServices(result.data);
+    };
+    loadServices();
+  }, []);
+
+
+  const getServiceName = (serviceId: string) => {
+    if (typeof serviceId === 'object') return (serviceId as any)?.name || '—';
+    const found = services.find((s) => s._id === serviceId);
+    return found?.name || serviceId || '—';
   };
-  loadServices();
-}, []);
-
-
-const getServiceName = (serviceId: string) => {
-  if (typeof serviceId === 'object') return (serviceId as any)?.name || '—';
-  const found = services.find((s) => s._id === serviceId);
-  return found?.name || serviceId || '—';
-};
   // ============ LOAD ON MOUNT ============
   useEffect(() => {
     loadSettings();
@@ -160,9 +160,9 @@ const getServiceName = (serviceId: string) => {
     );
   }
 
-  const status      = (currentStatus || '').toLowerCase() as RequestStatus;
-  const customer    = request.customerId;
-  const provider    = request.providerId;
+  const status = (currentStatus || '').toLowerCase() as RequestStatus;
+  const customer = request.customerId;
+  const provider = request.providerId;
   const location_str = [
     request.exactLocation,
     request.street,

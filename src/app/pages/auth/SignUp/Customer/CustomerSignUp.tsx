@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { Home, MapPin, Eye, EyeOff, Loader } from "lucide-react";
 import { toast } from "sonner";
 import { useForm, Controller } from "react-hook-form";
@@ -22,7 +22,7 @@ export default function CustomerSignUp() {
   const [cities, setCities] = useState<any[]>([]);
   const [loadingStates, setLoadingStates] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
-  const [detectingLocation, setDetectingLocation] =useState(false);
+  const [detectingLocation, setDetectingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -117,7 +117,7 @@ export default function CustomerSignUp() {
   // =========================
   // GET CURRENT LOCATION
   // =========================
-   const getCurrentLocation = () => {
+  const getCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation not supported");
 
@@ -165,8 +165,8 @@ export default function CustomerSignUp() {
           }
 
           const citiesData = await getCities(
-  matchedState.name
-);
+            matchedState.name
+          );
 
           const safeCities = Array.isArray(citiesData)
             ? citiesData
@@ -600,3 +600,4 @@ export default function CustomerSignUp() {
     </div>
   );
 }
+

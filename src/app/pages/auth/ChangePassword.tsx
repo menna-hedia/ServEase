@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import Button from '../../components/ui/Button';
@@ -133,3 +133,4 @@ export default function ChangePassword() {
     </div>
   );
 }
+

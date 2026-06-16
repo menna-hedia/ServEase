@@ -33,20 +33,20 @@ interface Admin {
 const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
 
 export default function ManageAdmins() {
-  const [admins, setAdmins]               = useState<Admin[]>([]);
-  const [searchTerm, setSearchTerm]       = useState('');
-  const [showAddModal, setShowAddModal]   = useState(false);
+  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState<Admin | null>(null);
-  const [loading, setLoading]             = useState(true);
-  const [isCreating, setIsCreating]       = useState(false);
-  const [isDeleting, setIsDeleting]       = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [newAdmin, setNewAdmin] = useState({
-    firstName:       '',
-    lastName:        '',
-    email:           '',
-    password:        '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
     confirmPassword: '',
   });
 
@@ -87,14 +87,14 @@ export default function ManageAdmins() {
   // ============ VALIDATE ============
   const validateForm = (): boolean => {
     if (!newAdmin.firstName.trim()) { toast.error('First name is required'); return false; }
-    if (!newAdmin.lastName.trim())  { toast.error('Last name is required');  return false; }
-    if (!newAdmin.email.trim())     { toast.error('Email is required');      return false; }
+    if (!newAdmin.lastName.trim()) { toast.error('Last name is required'); return false; }
+    if (!newAdmin.email.trim()) { toast.error('Email is required'); return false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newAdmin.email)) {
       toast.error('Please enter a valid email'); return false;
     }
-    if (!newAdmin.password)                               { toast.error('Password is required');          return false; }
-    if (newAdmin.password.length < 8)                     { toast.error('Password must be at least 8 characters'); return false; }
-    if (newAdmin.password !== newAdmin.confirmPassword)   { toast.error('Passwords do not match');        return false; }
+    if (!newAdmin.password) { toast.error('Password is required'); return false; }
+    if (newAdmin.password.length < 8) { toast.error('Password must be at least 8 characters'); return false; }
+    if (newAdmin.password !== newAdmin.confirmPassword) { toast.error('Passwords do not match'); return false; }
     return true;
   };
 
@@ -106,9 +106,9 @@ export default function ManageAdmins() {
     setIsCreating(true);
     const result = await createAdmin({
       firstName: newAdmin.firstName,
-      lastName:  newAdmin.lastName,
-      email:     newAdmin.email,
-      password:  newAdmin.password,
+      lastName: newAdmin.lastName,
+      email: newAdmin.email,
+      password: newAdmin.password,
     });
     setIsCreating(false);
 

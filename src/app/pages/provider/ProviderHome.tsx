@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Briefcase, Clock, CheckCircle, ChevronRight } from 'lucide-react';
 import ProviderNavbar from '../../components/layout/ProviderNavbar';
 import Footer from '../../components/layout/Footer';

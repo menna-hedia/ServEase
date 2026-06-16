@@ -8,7 +8,7 @@ export async function createService(name: string) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name }), 
+      body: JSON.stringify({ name }),
     });
 
     const result = await res.json();

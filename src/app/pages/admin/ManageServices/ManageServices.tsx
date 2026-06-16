@@ -17,15 +17,15 @@ interface Service {
 }
 
 export default function ManageServices() {
-  const [services,        setServices]        = useState<Service[]>([]);
-  const [searchTerm,      setSearchTerm]      = useState('');
-  const [loading,         setLoading]         = useState(true);
-  const [showAddModal,    setShowAddModal]    = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
-  const [isCreating,      setIsCreating]      = useState(false);
-  const [isDeleting,      setIsDeleting]      = useState(false);
-  const [newServiceName,  setNewServiceName]  = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [newServiceName, setNewServiceName] = useState('');
 
   // ============ FETCH ============
   useEffect(() => {
@@ -92,8 +92,8 @@ export default function ManageServices() {
   // ============ FILTER ============
   const filtered = searchTerm.trim()
     ? services.filter((s) =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      s.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     : services;
 
   return (

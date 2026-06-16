@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Camera, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
-
 import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Card from '../../../components/ui/Card';
 import Input from '../../../components/ui/Input';
@@ -76,10 +75,10 @@ export default function CustomerProfile() {
 
         const mappedStates: StateOption[] = Array.isArray(statesData)
           ? statesData.map((s: any) => ({
-              value: s.name,
-              label: s.name,
-              iso2: s.iso2,
-            }))
+            value: s.name,
+            label: s.name,
+            iso2: s.iso2,
+          }))
           : [];
 
         setStates(mappedStates);
@@ -92,13 +91,13 @@ export default function CustomerProfile() {
         const user = profileResult.data;
         setUserEmail(user.email || '');
 
-       const serverImage =
-  user.profileURL ||   
-  user.profileImage ||
-  user.imageUrl ||
-  user.photo ||
-  user.avatar ||
-  null;
+        const serverImage =
+          user.profileURL ||
+          user.profileImage ||
+          user.imageUrl ||
+          user.photo ||
+          user.avatar ||
+          null;
         if (serverImage) {
           setProfileImage(serverImage);
         }
@@ -585,3 +584,4 @@ export default function CustomerProfile() {
     </div>
   );
 }
+

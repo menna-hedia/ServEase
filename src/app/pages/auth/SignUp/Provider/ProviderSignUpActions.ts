@@ -19,7 +19,7 @@ export async function ProviderSignUpAction(
       const accessToken =
         result?.access_token || result?.token;
 
-      if (accessToken ) {
+      if (accessToken) {
         localStorage.setItem(
           "access_token",
           accessToken
@@ -37,7 +37,7 @@ export async function ProviderSignUpAction(
       error: Array.isArray(result.message)
         ? result.message.join(", ")
         : result.message ||
-          "Registration failed",
+        "Registration failed",
     };
   } catch (error) {
     console.error(error);

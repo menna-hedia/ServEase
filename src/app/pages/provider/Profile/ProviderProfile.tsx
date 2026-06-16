@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { Camera, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -42,6 +42,7 @@ export default function ProviderProfile() {
     writtenCv:      '',
     nationalNumber: '',
     gender:         '',
+      hourPrice:      '',  
   });
 
   const [userEmail,     setUserEmail]     = useState('');
@@ -156,6 +157,7 @@ const [loadingServices, setLoadingServices] = useState(false);
           writtenCv:      provider.writtenCv      || '',
           nationalNumber: provider.nationalNumber || '',
           gender:         provider.gender         || '',
+          hourPrice: provider.hourPrice ? String(provider.hourPrice) : '',
         });
 
         toast.success('Profile loaded successfully');
@@ -237,6 +239,7 @@ const [loadingServices, setLoadingServices] = useState(false);
   specialization: formData.specialization,
   writtenCv:      formData.writtenCv,
   gender:         formData.gender,  
+  hourPrice:      formData.hourPrice ? Number(formData.hourPrice) : undefined,
 });
 
     setIsSaving(false);
@@ -441,7 +444,20 @@ const [loadingServices, setLoadingServices] = useState(false);
                   }
                 />
               </div>
-
+{/* Hourly Rate */}
+<div>
+  <Input
+    type="number"
+    label="Hourly Rate (EGP)"
+    name="hourPrice"
+    value={formData.hourPrice}
+    onChange={handleChange}
+    placeholder="e.g. 150"
+  />
+  <p className="text-xs text-muted-foreground mt-1">
+    This rate is used for hourly broadcast requests. Minimum 150 EGP.
+  </p>
+</div>
               {/* GENDER */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">

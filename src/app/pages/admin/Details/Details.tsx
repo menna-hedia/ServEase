@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Mail, Phone, MapPin, Star,
     Briefcase, FileText, ShieldCheck, ShieldOff,
@@ -38,21 +38,21 @@ export default function Details() {
     const navigate = useNavigate();
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-const [services, setServices] = useState<any[]>([]);
+    const [services, setServices] = useState<any[]>([]);
 
-useEffect(() => {
-  const loadServices = async () => {
-    const result = await getAllServices();
-    if (result.success) setServices(result.data);
-  };
-  loadServices();
-}, []);
+    useEffect(() => {
+        const loadServices = async () => {
+            const result = await getAllServices();
+            if (result.success) setServices(result.data);
+        };
+        loadServices();
+    }, []);
 
-const getServiceName = (serviceId: string) => {
-  if (typeof serviceId === 'object') return (serviceId as any)?.name || '—';
-  const found = services.find((s) => s._id === serviceId);
-  return found?.name || serviceId || '—';
-};
+    const getServiceName = (serviceId: string) => {
+        if (typeof serviceId === 'object') return (serviceId as any)?.name || '—';
+        const found = services.find((s) => s._id === serviceId);
+        return found?.name || serviceId || '—';
+    };
     useEffect(() => {
         if (!id) return;
         const load = async () => {
@@ -235,12 +235,12 @@ const getServiceName = (serviceId: string) => {
                             <h2 className="text-lg font-semibold mb-3">Provider Details</h2>
 
                             {user.service && (
-  <InfoRow
-    icon={<Briefcase className="w-4 h-4" />}
-    label="Service"
-    value={getServiceName(user.service)}
-  />
-)}
+                                <InfoRow
+                                    icon={<Briefcase className="w-4 h-4" />}
+                                    label="Service"
+                                    value={getServiceName(user.service)}
+                                />
+                            )}
 
                             {user.nationalNumber && (
                                 <InfoRow

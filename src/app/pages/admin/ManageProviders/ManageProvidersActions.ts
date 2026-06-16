@@ -8,7 +8,7 @@ export async function getProviders(params: {
 
     const query = new URLSearchParams();
     if (params.search) query.append('search', params.search);
-    if (params.city)   query.append('city', params.city);
+    if (params.city) query.append('city', params.city);
     query.append('page', String(params.page || 1));
 
     const res = await fetch(`/api/admin/providers?${query.toString()}`, {

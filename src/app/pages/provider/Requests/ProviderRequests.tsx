@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { Calendar, MapPin, Clock, Eye, FileX, DollarSign } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, MapPin, Clock, Eye, FileX, DollarSign , Check, X} from 'lucide-react';
 import { toast } from 'sonner';
 import ProviderNavbar from '../../../components/layout/ProviderNavbar';
 import Footer from '../../../components/layout/Footer';
@@ -18,9 +18,19 @@ import {
   cancelRequest,
 } from './ProviderRequestsActions';
 
-type TabStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused';
+// type TabStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused';
 
 const DEFAULT_AVATAR = 'https://i.pravatar.cc/150?img=1';
+
+// const tabs: { value: TabStatus; label: string }[] = [
+//   { value: 'all',       label: 'All'       },
+//   { value: 'waiting',   label: 'Waiting'   },
+//   { value: 'pending',   label: 'Pending'   },
+//   { value: 'confirmed', label: 'Confirmed' },
+//   { value: 'completed', label: 'Completed' },
+//   { value: 'refused',   label: 'Refused'   },
+// ];
+type TabStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused';
 
 const tabs: { value: TabStatus; label: string }[] = [
   { value: 'all',       label: 'All'       },
@@ -30,7 +40,6 @@ const tabs: { value: TabStatus; label: string }[] = [
   { value: 'completed', label: 'Completed' },
   { value: 'refused',   label: 'Refused'   },
 ];
-
 export default function ProviderRequests() {
   const navigate = useNavigate();
 
@@ -150,6 +159,15 @@ export default function ProviderRequests() {
       : null) ||
     '—';
 
+  const calcHourlyPrice = (start: string, end: string, hourPrice: number) => {
+    if (!start || !end || !hourPrice) return null;
+    const [sh, sm] = start.split(':').map(Number);
+    const [eh, em] = end.split(':').map(Number);
+    const hours = (Math.ceil((eh * 60 + em) - (sh * 60 + sm))) / 60;
+    if (hours <= 0) return null;
+    return Math.ceil(hours * hourPrice);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <ProviderNavbar />
@@ -252,17 +270,44 @@ export default function ProviderRequests() {
                         )}
                       </div>
 
-                      {request.price > 0 && (
-                        <div className="flex items-center gap-4 mb-4">
+                      {/* Price */}
+                      {request.price > 0 ? (
+                        <div className="mb-4 space-y-2">
                           <div className="flex items-center gap-1">
                             <DollarSign className="w-4 h-4 text-primary" />
                             <span className="font-bold text-lg">EGP {request.price}</span>
                           </div>
                           <span className="text-sm text-muted-foreground">
-                            Earnings: EGP {request.earnings}
+                            Your Earnings: EGP {request.earnings}
                           </span>
                         </div>
-                      )}
+                      ) : request.paymentMode === 'HOURLY' ? (
+                        <div className="flex items-center gap-1 mb-4">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          {(() => {
+                            const estimated = calcHourlyPrice(
+                              request.startTime,
+                              request.endTime,
+                              request.customer?.hourPrice
+                            );
+                            return estimated ? (
+                              <span className="text-sm text-muted-foreground">
+                                Est. <span className="font-bold text-foreground">EGP {estimated}</span>
+                                <span className="ml-1 text-xs">(EGP {request.customer?.hourPrice}/hr)</span>
+                              </span>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">
+                                Hourly — EGP {request.customer?.hourPrice}/hr
+                              </span>
+                            );
+                          })()}
+                        </div>
+                      ) : request.preferredPrice > 0 ? (
+                        <div className="flex items-center gap-1 mb-4">
+                          <DollarSign className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-bold text-lg text-muted-foreground">EGP {request.preferredPrice}</span>
+                        </div>
+                      ) : null}
 
                       {/* Actions */}
                       <div className="flex flex-wrap gap-2">
@@ -280,13 +325,15 @@ export default function ProviderRequests() {
                         {status === 'waiting' && (
                           <>
                             <Button
+                             variant="success"
                               size="sm"
                               onClick={() => {
                                 setSelectedRequest(request);
                                 setShowAcceptModal(true);
                               }}
                             >
-                              Accept
+                              <Check className="w-4 h-4" />
+                              {isAccepting === id ? 'Accepting...' : 'Accept'}
                             </Button>
                             <Button
                               variant="destructive"
@@ -294,6 +341,7 @@ export default function ProviderRequests() {
                               disabled={isRejecting === id}
                               onClick={() => handleReject(request)}
                             >
+                              <X className="w-4 h-4" />
                               {isRejecting === id ? 'Rejecting...' : 'Reject'}
                             </Button>
                           </>
@@ -306,6 +354,7 @@ export default function ProviderRequests() {
                             disabled={isCancelling === id}
                             onClick={() => handleCancel(request)}
                           >
+                            <X className="w-4 h-4" />
                             {isCancelling === id ? 'Cancelling...' : 'Cancel'}
                           </Button>
                         )}

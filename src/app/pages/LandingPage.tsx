@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import {
   Menu,
   X,
@@ -415,3 +415,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

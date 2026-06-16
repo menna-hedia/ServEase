@@ -29,7 +29,7 @@ export async function SignInAction(data: SignInObjectType) {
         localStorage.setItem("user", JSON.stringify(result.user));
       }
       if (result?.role) {
-        localStorage.setItem('role', result.role);
+        localStorage.setItem("role", result.role);
       }
       return { success: true, data: result };
     }

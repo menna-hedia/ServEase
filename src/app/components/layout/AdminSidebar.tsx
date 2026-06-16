@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, LayoutDashboard, Users, Briefcase, UserCheck, ClipboardList, UserCog, Settings, LogOut, Wrench } from 'lucide-react';
 import { adminLogoutAction } from '../../pages/admin/Login/AdminLoginActions';
 import { toast } from 'sonner';
@@ -63,3 +63,4 @@ export default function AdminSidebar() {
     </div>
   );
 }
+

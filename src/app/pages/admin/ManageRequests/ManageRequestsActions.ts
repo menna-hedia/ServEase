@@ -4,7 +4,7 @@ export async function getAdminRequests(page = 1, status = '', minPrice = '', max
 
     const params = new URLSearchParams();
     params.append('page', String(page));
-    if (status)   params.append('status',   status.toUpperCase());
+    if (status) params.append('status', status.toUpperCase());
     if (minPrice) params.append('minPrice', minPrice);
     if (maxPrice) params.append('maxPrice', maxPrice);
 
@@ -17,13 +17,13 @@ export async function getAdminRequests(page = 1, status = '', minPrice = '', max
 
     if (res.ok) {
       const data = result.requests || result.data || (Array.isArray(result) ? result : []);
-      
+
       return {
         success: true,
         data,
-        totalPages:    result.totalPages    ?? 1,
+        totalPages: result.totalPages ?? 1,
         totalRequests: result.totalRequests ?? result.total ?? data.length,
-        currentPage:   result.currentPage   ?? 1,
+        currentPage: result.currentPage ?? 1,
       };
     }
 

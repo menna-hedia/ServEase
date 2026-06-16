@@ -41,6 +41,7 @@ export async function updateProviderProfile(data: {
   writtenCv?: string;
   nationalNumber?: string;
   gender: string;
+   hourPrice?: number; 
 }) {
   try {
     const token = localStorage.getItem('access_token');
@@ -59,6 +60,7 @@ export async function updateProviderProfile(data: {
       writtenCv: data.writtenCv,
       nationalNumber: data.nationalNumber,
       gender: data.gender,
+      ...(data.hourPrice !== undefined && { hourPrice: data.hourPrice }),
     };
 
     console.log('Sending update payload:', payload);

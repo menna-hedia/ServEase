@@ -13,14 +13,14 @@ export async function ConfirmEmailAction(email: string, otp: string) {
     console.log('Email verification response:', result);
 
     if (res.ok) {
-  if (result?.access_token) {
-    localStorage.setItem("access_token", result.access_token);
-  }
-  return {
-    success: true,
-    message: result.message || 'Verification successful',
-  };
-}
+      if (result?.access_token) {
+        localStorage.setItem("access_token", result.access_token);
+      }
+      return {
+        success: true,
+        message: result.message || 'Verification successful',
+      };
+    }
     return {
       success: false,
       error: result.message || result.error || 'Verification failed',

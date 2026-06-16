@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, MapPin, Star, ChevronLeft, ChevronRight, Briefcase, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Card from '../../components/ui/Card';

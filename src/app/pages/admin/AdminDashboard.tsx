@@ -6,16 +6,16 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { toast } from 'sonner';
 
 export default function AdminDashboard() {
-  const [stats,             setStats]             = useState<any>(null);
-  const [loading,           setLoading]           = useState(true);
-  const [recentActivity,    setRecentActivity]    = useState<any[]>([]);
-  const [userGrowthData,    setUserGrowthData]    = useState<{ month: string; users: number }[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [userGrowthData, setUserGrowthData] = useState<{ month: string; users: number }[]>([]);
   const [requestStatusData, setRequestStatusData] = useState([
     { name: 'Completed', value: 0, color: '#22C55E' },
     { name: 'Confirmed', value: 0, color: '#2563EB' },
-    { name: 'Waiting',   value: 0, color: '#F59E0B' },
-    { name: 'Pending',   value: 0, color: '#8B5CF6' },
-    { name: 'Rejected',  value: 0, color: '#EF4444' },
+    { name: 'Waiting', value: 0, color: '#F59E0B' },
+    { name: 'Pending', value: 0, color: '#8B5CF6' },
+    { name: 'Rejected', value: 0, color: '#EF4444' },
   ]);
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
           fetch('/api/admin/providers?page=1', { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
-        const reqData  = await reqRes.json();
+        const reqData = await reqRes.json();
         const provData = await provRes.json();
 
         const allRequests = Array.isArray(reqData) ? reqData : reqData.requests || reqData.data || [];
@@ -82,9 +82,9 @@ export default function AdminDashboard() {
         setRequestStatusData([
           { name: 'Completed', value: statusCount['COMPLETED'] || 0, color: '#22C55E' },
           { name: 'Confirmed', value: statusCount['CONFIRMED'] || 0, color: '#2563EB' },
-          { name: 'Waiting',   value: statusCount['WAITING']   || 0, color: '#F59E0B' },
-          { name: 'Pending',   value: statusCount['PENDING']   || 0, color: '#8B5CF6' },
-          { name: 'Rejected',  value: statusCount['REFUSED']   || 0, color: '#EF4444' },
+          { name: 'Waiting', value: statusCount['WAITING'] || 0, color: '#F59E0B' },
+          { name: 'Pending', value: statusCount['PENDING'] || 0, color: '#8B5CF6' },
+          { name: 'Rejected', value: statusCount['REFUSED'] || 0, color: '#EF4444' },
         ]);
 
         const requests = allRequests.slice(-3).reverse().map((r: any) => ({
@@ -115,11 +115,11 @@ export default function AdminDashboard() {
   }, []);
 
   const statCards = [
-    { label: 'Total Users',       value: stats?.totalUsers ?? '—',                                          icon: Users,         color: 'bg-blue-100 text-blue-600'   },
-    { label: 'Total Providers',   value: stats?.totalProviders ?? '—',                                      icon: Briefcase,     color: 'bg-purple-100 text-purple-600' },
-    { label: 'Total Requests',    value: stats?.totalServiceRequests ?? '—',                                 icon: ClipboardList, color: 'bg-green-100 text-green-600'  },
-    { label: 'Revenue',           value: stats?.revenue !== undefined ? `EGP ${stats.revenue}` : '—',       icon: TrendingUp,    color: 'bg-orange-100 text-orange-600' },
-    { label: 'Pending Approvals', value: stats?.pendingApprovals ?? '—',                                     icon: Clock,         color: 'bg-yellow-100 text-yellow-600' },
+    { label: 'Total Users', value: stats?.totalUsers ?? '—', icon: Users, color: 'bg-blue-100 text-blue-600' },
+    { label: 'Total Providers', value: stats?.totalProviders ?? '—', icon: Briefcase, color: 'bg-purple-100 text-purple-600' },
+    { label: 'Total Requests', value: stats?.totalServiceRequests ?? '—', icon: ClipboardList, color: 'bg-green-100 text-green-600' },
+    { label: 'Revenue', value: stats?.revenue !== undefined ? `EGP ${stats.revenue}` : '—', icon: TrendingUp, color: 'bg-orange-100 text-orange-600' },
+    { label: 'Pending Approvals', value: stats?.pendingApprovals ?? '—', icon: Clock, color: 'bg-yellow-100 text-yellow-600' },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Home } from "lucide-react";
 import { toast } from "sonner";
 
@@ -115,39 +115,39 @@ export default function OTPVerification() {
         navigate("/change-password");
 
       } else {
-  const result = await ConfirmEmailAction(email, otp.join(""));
+        const result = await ConfirmEmailAction(email, otp.join(""));
 
-  if (!result.success) {
-    throw new Error(result.error || "Invalid OTP");
-  }
+        if (!result.success) {
+          throw new Error(result.error || "Invalid OTP");
+        }
 
-  sessionStorage.removeItem("verifyEmail");
-  sessionStorage.removeItem("verifyType");
-  sessionStorage.removeItem("verifyRole");
+        sessionStorage.removeItem("verifyEmail");
+        sessionStorage.removeItem("verifyType");
+        sessionStorage.removeItem("verifyRole");
 
-  toast.success(result.message || "Verified successfully");
+        toast.success(result.message || "Verified successfully");
 
-  if (userRole === "provider") {
-    const token = localStorage.getItem('access_token');
-    try {
-      const profileRes = await fetch('/api/provider/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await profileRes.json();
-      const profile = data.provider || data.data || data;
+        if (userRole === "provider") {
+          const token = localStorage.getItem('access_token');
+          try {
+            const profileRes = await fetch('/api/provider/', {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await profileRes.json();
+            const profile = data.provider || data.data || data;
 
-      if (profile.adminApproved === 'Active') {
-        navigate('/provider/home');
-      } else {
-        navigate('/pending-approval');
+            if (profile.adminApproved === 'Active') {
+              navigate('/provider/home');
+            } else {
+              navigate('/pending-approval');
+            }
+          } catch {
+            navigate('/pending-approval');
+          }
+        } else {
+          navigate("/customer/home");
+        }
       }
-    } catch {
-      navigate('/pending-approval');
-    }
-  } else {
-    navigate("/customer/home");
-  }
-}
     } catch (err: any) {
       toast.error(err.message || "Invalid OTP");
     } finally {

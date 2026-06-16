@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import ProviderNavbar from '../../components/layout/ProviderNavbar';
 import Footer from '../../components/layout/Footer';
 import Card from '../../components/ui/Card';
@@ -149,3 +149,4 @@ export default function Billing() {
     </div>
   );
 }
+

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Menu, X, LogOut, Briefcase, User, Info } from 'lucide-react';
 import ChatbotDrawer from '../shared/ChatbotDrawer';
 import { logoutAction } from '../../pages/auth/logout';
@@ -106,3 +106,4 @@ export default function CustomerNavbar() {
     </nav>
   );
 }
+

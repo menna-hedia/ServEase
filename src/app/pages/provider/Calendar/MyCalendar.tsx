@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import ProviderNavbar from '../../../components/layout/ProviderNavbar';
 import Card from '../../../components/ui/Card';

@@ -10,7 +10,7 @@ export async function CustomerSignUpAction(
       ...submitData,
       city: data.state,
       state: data.city,
-      
+
       gender: data.gender?.toUpperCase(),
     };
 
@@ -51,8 +51,8 @@ export async function CustomerSignUpAction(
         Array.isArray(result.message)
           ? result.message.join("\n")
           : result.message ||
-            result.error ||
-            "Registration failed",
+          result.error ||
+          "Registration failed",
     };
   } catch (error) {
     console.log("Registration error:", error);
