@@ -4,8 +4,12 @@ import { toast } from 'sonner';
 import Modal from '../../../components/ui/Modal';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+import Select from '../../../components/ui/Select';
 import { createBroadcastRequest } from './BroadcastActions';
 import { getAllServices } from '../../shared/Services/ServicesActions';
+import { getStates, getCities } from '../../../services/locationService';
+
+type StateOption = { value: string; label: string; iso2: string };
 
 interface Props {
   isOpen: boolean;
@@ -32,11 +36,68 @@ export default function CreateBroadcastModal({ isOpen, onClose, onSuccess }: Pro
     preferredPrice: '',
   });
 
+  // ── Governorate / City dropdown data ──────────────────────
+  const [requestStates,        setRequestStates]        = useState<StateOption[]>([]);
+  const [requestCities,        setRequestCities]        = useState<{ value: string; label: string }[]>([]);
+  const [loadingRequestStates, setLoadingRequestStates] = useState(false);
+  const [loadingRequestCities, setLoadingRequestCities] = useState(false);
+
   useEffect(() => {
     getAllServices().then((r) => {
       if (r.success) setServices(r.data);
     });
   }, []);
+
+  // ── Load governorates (states) ────────────────────────────
+  useEffect(() => {
+    const loadStates = async () => {
+      try {
+        setLoadingRequestStates(true);
+        const statesData = await getStates();
+        const mapped: StateOption[] = Array.isArray(statesData)
+          ? statesData.map((s: any) => ({
+              value: s.name,
+              label: s.name,
+              iso2: s.iso2,
+            }))
+          : [];
+        setRequestStates(mapped);
+      } catch {
+        toast.error('Failed to load governorates');
+      } finally {
+        setLoadingRequestStates(false);
+      }
+    };
+    loadStates();
+  }, []);
+
+  // ── Load cities whenever governorate changes ─────────────
+  useEffect(() => {
+    if (!formData.governorate || requestStates.length === 0) {
+      setRequestCities([]);
+      return;
+    }
+
+    const loadCities = async () => {
+      try {
+        setLoadingRequestCities(true);
+        const stateObj = requestStates.find((s) => s.value === formData.governorate);
+        if (!stateObj) return;
+
+        const data = await getCities(stateObj.iso2);
+        const mapped = Array.isArray(data)
+          ? data.map((c: any) => ({ value: c.name, label: c.name }))
+          : [];
+        setRequestCities(mapped);
+      } catch {
+        toast.error('Failed to load cities');
+      } finally {
+        setLoadingRequestCities(false);
+      }
+    };
+
+    loadCities();
+  }, [formData.governorate, requestStates]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +139,7 @@ export default function CreateBroadcastModal({ isOpen, onClose, onSuccess }: Pro
                      || result.data?.id;
       onSuccess?.(requestId);
       onClose();
-      navigate('/customer/requests');   // ← navigate هنا مباشرة
+      navigate('/customer/requests');   
     } else {
       toast.error(result.error || 'Failed to create broadcast');
     }
@@ -131,18 +192,34 @@ export default function CreateBroadcastModal({ isOpen, onClose, onSuccess }: Pro
 
         {/* Location */}
         <div className="grid md:grid-cols-2 gap-4">
-          <Input
+          <Select
             label="Governorate"
-            placeholder="Enter governorate"
             value={formData.governorate}
-            onChange={(e) => set('governorate', e.target.value)}
+            onChange={(e) => {
+              set('governorate', e.target.value);
+              set('city', '');
+            }}
+            options={[
+              {
+                value: '',
+                label: loadingRequestStates ? 'Loading...' : 'Select Governorate',
+              },
+              ...requestStates,
+            ]}
             required
           />
-          <Input
+          <Select
             label="City"
-            placeholder="Enter city"
             value={formData.city}
             onChange={(e) => set('city', e.target.value)}
+            disabled={!formData.governorate || loadingRequestCities}
+            options={[
+              {
+                value: '',
+                label: loadingRequestCities ? 'Loading...' : 'Select City',
+              },
+              ...requestCities,
+            ]}
             required
           />
         </div>

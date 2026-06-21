@@ -16,7 +16,7 @@ import ChangePassword from './pages/auth/ChangePassword';
 import CustomerHome from './pages/customer/Home/CustomerHome';
 import ServicesPage from './pages/customer/Services/ServicesPage';
 import MyRequestsPage from './pages/customer/Requests/MyRequestsPage';
-import CustomerAbout from './pages/customer/CustomerAbout';
+import CustomerAbout from './pages/customer/About/CustomerAbout';
 import CustomerProfile from './pages/customer/Profile/CustomerProfile';
 import CustomerRequestDetails from './pages/customer/Requests/RequestDetails';
 import BroadcastOffersPage from './pages/customer/Broadcast/BroadcastOffersPage';

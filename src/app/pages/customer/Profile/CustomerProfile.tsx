@@ -173,7 +173,7 @@ export default function CustomerProfile() {
       mobileNumber: formData.phone,
       city: formData.state,
       state: formData.city,
-      gender: formData.gender,
+      // gender: formData.gender,
     });
 
     if (response.success) {
@@ -343,13 +343,14 @@ export default function CustomerProfile() {
 
                 <div className="grid grid-cols-2 gap-4">
                   {/* MALE */}
-                  <label className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-pointer transition-all duration-200">
+                  <label className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-not-allowed opacity-60 transition-all duration-200">
                     <input
                       type="radio"
                       name="gender"
                       value="MALE"
                       checked={formData.gender === 'MALE'}
                       onChange={handleChange}
+                      disabled
                       className="hidden"
                     />
                     <div
@@ -364,13 +365,14 @@ export default function CustomerProfile() {
                   </label>
 
                   {/* FEMALE */}
-                  <label className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-pointer transition-all duration-200">
+                  <label className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-not-allowed opacity-60 transition-all duration-200">
                     <input
                       type="radio"
                       name="gender"
                       value="FEMALE"
                       checked={formData.gender === 'FEMALE'}
                       onChange={handleChange}
+                      disabled
                       className="hidden"
                     />
                     <div
@@ -584,4 +586,3 @@ export default function CustomerProfile() {
     </div>
   );
 }
-

@@ -1,7 +1,9 @@
-import CustomerNavbar from '../../components/layout/CustomerNavbar';
-import Footer from '../../components/layout/Footer';
-import Card from '../../components/ui/Card';
+import { useState, useEffect } from 'react';
+import CustomerNavbar from '../../../components/layout/CustomerNavbar';
+import Footer from '../../../components/layout/Footer';
+import Card from '../../../components/ui/Card';
 import { Zap, Shield, Clock, MessageSquare, Star, MapPin } from 'lucide-react';
+import { getGeneralCounts } from './CustomerAboutActions';
 
 const features = [
   {
@@ -60,6 +62,30 @@ const steps = [
 ];
 
 export default function CustomerAbout() {
+  const [counts, setCounts] = useState({
+    providerCount: 0,
+    requesterCount: 0,
+    userSatisfaction: 0,
+  });
+  const [loadingCounts, setLoadingCounts] = useState(true);
+
+  useEffect(() => {
+    const loadCounts = async () => {
+      setLoadingCounts(true);
+      const result = await getGeneralCounts();
+      setLoadingCounts(false);
+
+      if (result.success) {
+        setCounts({
+          providerCount: result.data.providerCount ?? 0,
+          requesterCount: result.data.requesterCount ?? 0,
+          userSatisfaction: result.data.userSatisfaction ?? 0,
+        });
+      }
+    };
+    loadCounts();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <CustomerNavbar />
@@ -114,15 +140,21 @@ export default function CustomerAbout() {
           <div className="bg-gradient-to-br from-primary to-accent text-white rounded-3xl p-8 lg:p-12">
             <div className="grid md:grid-cols-3 gap-8 text-center">
               <div>
-                <div className="text-5xl font-bold mb-2">5,000+</div>
+                <div className="text-5xl font-bold mb-2">
+                  {loadingCounts ? '—' : `${counts.providerCount.toLocaleString()}+`}
+                </div>
                 <p className="text-xl text-white/90">Registered Providers</p>
               </div>
               <div>
-                <div className="text-5xl font-bold mb-2">50,000+</div>
-                <p className="text-xl text-white/90">Completed Services</p>
+                <div className="text-5xl font-bold mb-2">
+                  {loadingCounts ? '—' : `${counts.requesterCount.toLocaleString()}+`}
+                </div>
+                <p className="text-xl text-white/90">Compeleted Services</p>
               </div>
               <div>
-                <div className="text-5xl font-bold mb-2">98%</div>
+                <div className="text-5xl font-bold mb-2">
+                  {loadingCounts ? '—' : `${(counts.userSatisfaction * 20).toFixed(0)}%`}
+                </div>
                 <p className="text-xl text-white/90">User Satisfaction</p>
               </div>
             </div>

@@ -6,7 +6,11 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
 import { createServiceRequest } from '../customer/Services/ServicesActions';
+import { getStates, getCities } from '../../services/locationService';
+
+type StateOption = { value: string; label: string; iso2: string };
 
 const DEFAULT_AVATAR = 'https://i.pravatar.cc/150?img=1';
 
@@ -29,6 +33,12 @@ export default function ProviderPublicProfile() {
     street: '',
     exactLocation: '',
   });
+
+  // ── Governorate / City dropdown data ──────────────────────
+  const [requestStates,        setRequestStates]        = useState<StateOption[]>([]);
+  const [requestCities,        setRequestCities]        = useState<{ value: string; label: string }[]>([]);
+  const [loadingRequestStates, setLoadingRequestStates] = useState(false);
+  const [loadingRequestCities, setLoadingRequestCities] = useState(false);
 
   // ── Fetch reviews (+ provider لو مفيش state) ────────────
   useEffect(() => {
@@ -53,6 +63,57 @@ export default function ProviderPublicProfile() {
       fetchReviews().finally(() => setLoading(false));
     }
   }, [id]);
+
+  // ── Load governorates (states) ────────────────────────────
+  useEffect(() => {
+    const loadStates = async () => {
+      try {
+        setLoadingRequestStates(true);
+        const statesData = await getStates();
+        const mapped: StateOption[] = Array.isArray(statesData)
+          ? statesData.map((s: any) => ({
+              value: s.name,
+              label: s.name,
+              iso2: s.iso2,
+            }))
+          : [];
+        setRequestStates(mapped);
+      } catch {
+        toast.error('Failed to load governorates');
+      } finally {
+        setLoadingRequestStates(false);
+      }
+    };
+    loadStates();
+  }, []);
+
+  // ── Load cities whenever governorate changes ─────────────
+  useEffect(() => {
+    if (!requestData.governorate || requestStates.length === 0) {
+      setRequestCities([]);
+      return;
+    }
+
+    const loadCities = async () => {
+      try {
+        setLoadingRequestCities(true);
+        const stateObj = requestStates.find((s) => s.value === requestData.governorate);
+        if (!stateObj) return;
+
+        const data = await getCities(stateObj.iso2);
+        const mapped = Array.isArray(data)
+          ? data.map((c: any) => ({ value: c.name, label: c.name }))
+          : [];
+        setRequestCities(mapped);
+      } catch {
+        toast.error('Failed to load cities');
+      } finally {
+        setLoadingRequestCities(false);
+      }
+    };
+
+    loadCities();
+  }, [requestData.governorate, requestStates]);
 
   // ── Submit request ───────────────────────────────────────
   const handleSubmitRequest = async (e: React.FormEvent) => {
@@ -145,6 +206,14 @@ export default function ProviderPublicProfile() {
                   <div className="flex items-center gap-2 mb-3">
                     <Briefcase className="w-4 h-4 text-muted-foreground" />
                     <span className="text-muted-foreground">{provider.service?.name || '—'}</span>
+                    {provider.hourPrice && (
+                      <>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="font-semibold text-primary">
+                          {provider.hourPrice} EGP/hr
+                        </span>
+                      </>
+                    )}
                   </div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex items-center gap-1 bg-yellow-100 px-3 py-1.5 rounded-full">
@@ -159,13 +228,13 @@ export default function ProviderPublicProfile() {
                       <span>{[provider.city, provider.state].filter(Boolean).join(', ')}</span>
                     </div>
                   </div>
-                  <Button
+                  {/* <Button
                     onClick={() => setShowRequestModal(true)}
                     size="lg"
                     className="w-full md:w-auto"
                   >
                     Request Service
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
 
@@ -309,18 +378,33 @@ export default function ProviderPublicProfile() {
             />
           </div>
           <div className="grid md:grid-cols-2 gap-4">
-            <Input
+            <Select
               label="Governorate"
-              placeholder="Enter governorate"
               value={requestData.governorate}
-              onChange={(e) => setRequestData({ ...requestData, governorate: e.target.value })}
+              onChange={(e) =>
+                setRequestData({ ...requestData, governorate: e.target.value, city: '' })
+              }
+              options={[
+                {
+                  value: '',
+                  label: loadingRequestStates ? 'Loading...' : 'Select Governorate',
+                },
+                ...requestStates,
+              ]}
               required
             />
-            <Input
+            <Select
               label="City"
-              placeholder="Enter city"
               value={requestData.city}
               onChange={(e) => setRequestData({ ...requestData, city: e.target.value })}
+              disabled={!requestData.governorate || loadingRequestCities}
+              options={[
+                {
+                  value: '',
+                  label: loadingRequestCities ? 'Loading...' : 'Select City',
+                },
+                ...requestCities,
+              ]}
               required
             />
           </div>

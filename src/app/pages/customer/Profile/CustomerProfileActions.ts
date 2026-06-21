@@ -34,7 +34,7 @@ export async function updateCustomerProfile(data: {
   mobileNumber: string;
   state: string;
   city: string;
-  gender: string;
+  // gender: string;
 }) {
   try {
     const token = localStorage.getItem('access_token');
