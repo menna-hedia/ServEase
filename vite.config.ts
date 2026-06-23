@@ -29,16 +29,15 @@ export default defineConfig({
     },
   },
 
-  server: {
-    proxy: {
-      "/api": {
-        target: "https://servease-production-e5da.up.railway.app",
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-      },
+server: {
+  proxy: {
+    "/api": {
+      target: "https://servease-71rt.onrender.com",  // current (Django?)
+      changeOrigin: true,
+      secure: false,
+      rewrite: (path) => path.replace(/^\/api/, ""),
     },
   },
-
+},
   assetsInclude: ["**/*.svg", "**/*.csv"],
 });

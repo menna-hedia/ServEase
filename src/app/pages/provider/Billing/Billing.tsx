@@ -287,9 +287,11 @@ export default function Billing() {
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-destructive mb-2">Payment Required</h3>
                 <p className="text-destructive/90 mb-4">
-                  You must pay first. Your debt of EGP {debtAmount} has reached the limit.
-                  You cannot accept new requests until your debt is cleared.
-                </p>
+  {billingData?.isBanned
+    ? `Your account has been suspended due to unpaid debt of EGP ${debtAmount}. Please clear your debt to reactivate your account.`
+    : `You have an outstanding debt of EGP ${debtAmount}. Please pay to continue accepting new requests.`
+  }
+</p>
 
                 <Button
                   variant="destructive"

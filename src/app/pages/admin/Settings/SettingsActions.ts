@@ -26,7 +26,7 @@ export async function getSettings() {
       return {
         success: true,
         data: {
-          webCommission: 10,
+          webCommission: 0,
           providerDebt: 0,
           providerCancelFee: 0,
           providerCancelCount: 0,
