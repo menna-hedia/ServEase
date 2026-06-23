@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Mail, Phone, MapPin, Star,
     Briefcase, FileText, ShieldCheck, ShieldOff,
-    CalendarDays, CreditCard, AlertTriangle,
+    CalendarDays, CreditCard, AlertTriangle, Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminSidebar from '../../../components/layout/AdminSidebar';
@@ -53,6 +53,7 @@ export default function Details() {
         const found = services.find((s) => s._id === serviceId);
         return found?.name || serviceId || '—';
     };
+
     useEffect(() => {
         if (!id) return;
         const load = async () => {
@@ -127,22 +128,15 @@ export default function Details() {
                             <p className="text-muted-foreground text-sm mb-3">{user.email}</p>
 
                             <div className="flex flex-wrap items-center justify-center gap-2">
-                                {/* Role */}
                                 <Badge variant={isProvider ? 'completed' : 'pending'}>
                                     {user.role}
                                 </Badge>
-
-                                {/* Verified */}
                                 <Badge variant={user.isVerified ? 'completed' : 'refused'}>
                                     {user.isVerified ? 'Verified' : 'Not Verified'}
                                 </Badge>
-
-                                {/* Deleted */}
                                 {user.isDeleted && (
                                     <Badge variant="refused">Deleted</Badge>
                                 )}
-
-                                {/* Provider approval */}
                                 {isProvider && user.adminApproved && (
                                     <Badge variant={user.adminApproved === 'Active' ? 'completed' : 'pending'}>
                                         {user.adminApproved}
@@ -239,6 +233,14 @@ export default function Details() {
                                     icon={<Briefcase className="w-4 h-4" />}
                                     label="Service"
                                     value={getServiceName(user.service)}
+                                />
+                            )}
+
+                            {user.hourPrice !== undefined && user.hourPrice !== null && (
+                                <InfoRow
+                                    icon={<Clock className="w-4 h-4" />}
+                                    label="Hour Price"
+                                    value={`${user.hourPrice} EGP/hr`}
                                 />
                             )}
 

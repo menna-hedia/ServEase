@@ -57,7 +57,6 @@ export default function ServicesPage() {
       if (result.success) {
         setServices(result.data);
 
-        // لو جه من صفحة تانية بـ selectedServiceId
         const stateServiceId = location.state?.selectedServiceId;
         if (stateServiceId) {
           const found = result.data.find((s: any) => s._id === stateServiceId);

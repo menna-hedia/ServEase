@@ -300,7 +300,7 @@ export default function CreateBroadcastModal({ isOpen, onClose, onSuccess }: Pro
             onChange={(e) => set('matchByTopRated', e.target.checked)}
             className="w-4 h-4 accent-primary"
           />
-          <span className="text-sm">Match with top-rated providers only ⭐</span>
+          <span className="text-sm">Match with top-rated providers only</span>
         </label>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>

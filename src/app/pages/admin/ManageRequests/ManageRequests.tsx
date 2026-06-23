@@ -4,7 +4,6 @@ import { Eye, FileX, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminSidebar from '../../../components/layout/AdminSidebar';
 import Card from '../../../components/ui/Card';
-import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
 import Select from '../../../components/ui/Select';
 import Input from '../../../components/ui/Input';
@@ -13,33 +12,65 @@ import EmptyState from '../../../components/ui/EmptyState';
 import { SkeletonCard } from '../../../components/ui/Skeleton';
 import { getAdminRequests, cancelAdminRequest } from './ManageRequestsActions';
 
-type RequestStatus = 'confirmed' | 'waiting' | 'pending' | 'completed' | 'refused' | 'outdated';
+type RequestStatus =
+  | 'confirmed'
+  | 'waiting'
+  | 'pending'
+  | 'completed'
+  | 'refused'
+  | 'outdated'
+  | 'cancelled'
+  | 'open';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
   { value: 'waiting', label: 'Waiting' },
   { value: 'pending', label: 'Pending' },
+  { value: 'open', label: 'Open' },
   { value: 'confirmed', label: 'Confirmed' },
   { value: 'completed', label: 'Completed' },
   { value: 'refused', label: 'Refused' },
+  { value: 'cancelled', label: 'Cancelled' },
   { value: 'outdated', label: 'Outdated' },
 ];
+
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  confirmed:  { bg: 'bg-green-100',       text: 'text-green-700',   label: 'Confirmed'  },
+  waiting:    { bg: 'bg-orange-100',      text: 'text-orange-700',  label: 'Waiting'    },
+  pending:    { bg: 'bg-yellow-100',      text: 'text-yellow-700',  label: 'Pending'    },
+  completed:  { bg: 'bg-emerald-100',     text: 'text-emerald-800', label: 'Completed'  },
+  refused:    { bg: 'bg-red-100',         text: 'text-red-700',     label: 'Refused'    },
+  outdated:   { bg: 'bg-gray-100',        text: 'text-gray-600',    label: 'Outdated'   },
+  cancelled:  { bg: 'bg-rose-100',        text: 'text-rose-700',    label: 'Cancelled'  },
+  open:       { bg: 'bg-blue-100',        text: 'text-blue-700',    label: 'Open'       },
+  // pending:    { bg: 'bg-yellow-100',      text: 'text-yellow-700',  label: 'Pending'    },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const key = status?.toLowerCase() ?? '';
+  const style = STATUS_STYLES[key] ?? { bg: 'bg-gray-100', text: 'text-gray-600', label: status };
+  return (
+    <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}>
+      {style.label}
+    </span>
+  );
+}
 
 export default function ManageRequests() {
   const navigate = useNavigate();
 
-  const [requests, setRequests] = useState<any[]>([]);
-  const [allRequests, setAllRequests] = useState<any[]>([]); // للـ client-side filter
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalRequests, setTotalRequests] = useState(0);
+  const [requests,        setRequests]        = useState<any[]>([]);
+  const [allRequests,     setAllRequests]     = useState<any[]>([]);
+  const [loading,         setLoading]         = useState(true);
+  const [statusFilter,    setStatusFilter]    = useState('');
+  const [minPrice,        setMinPrice]        = useState('');
+  const [maxPrice,        setMaxPrice]        = useState('');
+  const [currentPage,     setCurrentPage]     = useState(1);
+  const [totalPages,      setTotalPages]      = useState(1);
+  const [totalRequests,   setTotalRequests]   = useState(0);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [requestToCancel, setRequestToCancel] = useState<any | null>(null);
-  const [isCancelling, setIsCancelling] = useState(false);
+  const [isCancelling,    setIsCancelling]    = useState(false);
 
   // ============ FETCH ============
   useEffect(() => {
@@ -64,7 +95,7 @@ export default function ManageRequests() {
   // reset page on filter change
   useEffect(() => { setCurrentPage(1); }, [statusFilter, minPrice, maxPrice]);
 
-  // ============ CLIENT-SIDE FILTER  ============
+  // ============ CLIENT-SIDE FILTER ============
   useEffect(() => {
     let filtered = [...allRequests];
 
@@ -118,7 +149,7 @@ export default function ManageRequests() {
   const getId = (obj: any) => obj?._id || obj?.id;
 
   const canCancel = (status: string) =>
-    ['waiting', 'pending', 'confirmed'].includes(status?.toLowerCase());
+    ['waiting', 'pending', 'confirmed', 'open'].includes(status?.toLowerCase());
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -183,8 +214,8 @@ export default function ManageRequests() {
                     <th className="text-left p-3 font-medium">Customer</th>
                     <th className="text-left p-3 font-medium">Provider</th>
                     <th className="text-left p-3 font-medium">Service</th>
-                    <th className="text-left p-3 font-medium ">Date</th>
-                    <th className="text-left p-3 font-medium ">Status</th>
+                    <th className="text-left p-3 font-medium">Date</th>
+                    <th className="text-left p-3 font-medium">Status</th>
                     <th className="text-left p-3 font-medium">Price</th>
                     <th className="text-left p-3 font-medium">Actions</th>
                   </tr>
@@ -199,7 +230,7 @@ export default function ManageRequests() {
                         key={id}
                         className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
                       >
-                        {/* Customer — clickable */}
+                        {/* Customer */}
                         <td
                           className="p-3 text-sm cursor-pointer hover:opacity-80 font-medium transition-opacity"
                           onClick={() => {
@@ -210,9 +241,9 @@ export default function ManageRequests() {
                           {getName(request.customerId)}
                         </td>
 
-                        {/* Provider — clickable */}
+                        {/* Provider */}
                         <td
-                          className={`p-3 text-sm ${request.providerId ? 'p-3 text-sm cursor-pointer hover:opacity-80 font-medium transition-opacity' : ''}`}
+                          className={`p-3 text-sm ${request.providerId ? 'cursor-pointer hover:opacity-80 font-medium transition-opacity' : ''}`}
                           onClick={() => {
                             const pid = getId(request.providerId);
                             if (pid) navigate(`/admin/details/${pid}`);
@@ -228,9 +259,7 @@ export default function ManageRequests() {
                             : '—'}
                         </td>
                         <td className="p-3">
-                          <Badge variant={status} >
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                          </Badge>
+                          <StatusBadge status={status} />
                         </td>
                         <td className="p-3 text-sm">
                           {request.price ? `EGP ${request.price}` : '—'}

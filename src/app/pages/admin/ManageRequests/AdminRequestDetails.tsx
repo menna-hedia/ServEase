@@ -7,7 +7,6 @@ import {
 import { toast } from 'sonner';
 import AdminSidebar from '../../../components/layout/AdminSidebar';
 import Card from '../../../components/ui/Card';
-import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
 import Textarea from '../../../components/ui/Textarea';
@@ -18,7 +17,36 @@ import { getAllServices } from '../../shared/Services/ServicesActions';
 
 const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
 
-type RequestStatus = 'confirmed' | 'waiting' | 'pending' | 'completed' | 'refused' | 'outdated';
+type RequestStatus =
+  | 'confirmed'
+  | 'waiting'
+  | 'pending'
+  | 'completed'
+  | 'refused'
+  | 'outdated'
+  | 'cancelled'
+  | 'open';
+
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  confirmed: { bg: 'bg-green-100',   text: 'text-green-700',   label: 'Confirmed'  },
+  waiting:   { bg: 'bg-orange-100',  text: 'text-orange-700',  label: 'Waiting'    },
+  pending:   { bg: 'bg-yellow-100',  text: 'text-yellow-700',  label: 'Pending'    },
+  completed: { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Completed'  },
+  refused:   { bg: 'bg-red-100',     text: 'text-red-700',     label: 'Refused'    },
+  outdated:  { bg: 'bg-gray-100',    text: 'text-gray-600',    label: 'Outdated'   },
+  cancelled: { bg: 'bg-rose-100',    text: 'text-rose-700',    label: 'Cancelled'  },
+  open:      { bg: 'bg-blue-100',    text: 'text-blue-700',    label: 'Open'       },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const key = status?.toLowerCase() ?? '';
+  const style = STATUS_STYLES[key] ?? { bg: 'bg-gray-100', text: 'text-gray-600', label: status };
+  return (
+    <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}>
+      {style.label}
+    </span>
+  );
+}
 
 export default function AdminRequestDetails() {
   const { id } = useParams<{ id: string }>();
@@ -28,18 +56,15 @@ export default function AdminRequestDetails() {
   const request = location.state?.request;
 
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState(request?.status || '');
-  const [commission, setCommission] = useState('0');
-  const [cancelFee, setCancelFee] = useState('0');
-  const [loading, setLoading] = useState(true);
-  const [customerData, setCustomerData] = useState<any>(null);
-  const [providerData, setProviderData] = useState<any>(null);
-
-
-  const [services, setServices] = useState<any[]>([]);
-
+  const [cancelReason,    setCancelReason]    = useState('');
+  const [isCancelling,    setIsCancelling]    = useState(false);
+  const [currentStatus,   setCurrentStatus]   = useState(request?.status || '');
+  const [commission,      setCommission]      = useState('0');
+  const [cancelFee,       setCancelFee]       = useState('0');
+  const [loading,         setLoading]         = useState(true);
+  const [customerData,    setCustomerData]    = useState<any>(null);
+  const [providerData,    setProviderData]    = useState<any>(null);
+  const [services,        setServices]        = useState<any[]>([]);
 
   useEffect(() => {
     const loadServices = async () => {
@@ -49,12 +74,12 @@ export default function AdminRequestDetails() {
     loadServices();
   }, []);
 
-
   const getServiceName = (serviceId: string) => {
     if (typeof serviceId === 'object') return (serviceId as any)?.name || '—';
     const found = services.find((s) => s._id === serviceId);
     return found?.name || serviceId || '—';
   };
+
   // ============ LOAD ON MOUNT ============
   useEffect(() => {
     loadSettings();
@@ -65,13 +90,8 @@ export default function AdminRequestDetails() {
   const loadUsers = async () => {
     const token = localStorage.getItem('admin_token');
 
-    const customerId =
-      request?.customerId?._id ||
-      request?.customerId;
-
-    const providerId =
-      request?.providerId?._id ||
-      request?.providerId;
+    const customerId = request?.customerId?._id || request?.customerId;
+    const providerId = request?.providerId?._id || request?.providerId;
 
     if (customerId) {
       try {
@@ -146,7 +166,7 @@ export default function AdminRequestDetails() {
     obj?.userName || obj?.email || '—';
 
   const canCancel = (status: string) =>
-    ['waiting', 'pending', 'confirmed'].includes(status?.toLowerCase());
+    ['waiting', 'pending', 'confirmed', 'open'].includes(status?.toLowerCase());
 
   if (!request) {
     return (
@@ -195,9 +215,7 @@ export default function AdminRequestDetails() {
                     #{(request._id || request.id)?.slice(-6)}
                   </span>
                 </h1>
-                <Badge variant={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Badge>
+                <StatusBadge status={status} />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">

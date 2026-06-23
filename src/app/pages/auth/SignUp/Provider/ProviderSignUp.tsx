@@ -82,6 +82,7 @@ export default function ProviderSignUp() {
       state: "",
       city: "",
       gender: "",
+      hourPrice: 0,
       password: "",
       confirmPassword: "",
     },
@@ -161,9 +162,7 @@ export default function ProviderSignUp() {
           return;
         }
 
-        const data = await getCities(
-          selectedState.iso2
-        );
+        const data = await getCities(selectedState.iso2);
 
         setCities(Array.isArray(data) ? data : []);
 
@@ -200,7 +199,6 @@ export default function ProviderSignUp() {
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation not supported");
-
       return;
     }
 
@@ -233,53 +231,32 @@ export default function ProviderSignUp() {
             "";
 
           const matchedState = states.find((s) =>
-            normalizeText(detectedState).includes(
-              normalizeText(s.name)
-            )
+            normalizeText(detectedState).includes(normalizeText(s.name))
           );
 
           if (!matchedState) {
             toast.error("State not found");
-
             return;
           }
 
-          const citiesData = await getCities(
-            matchedState.iso2
-          );
+          const citiesData = await getCities(matchedState.iso2);
 
-          const safeCities = Array.isArray(citiesData)
-            ? citiesData
-            : [];
+          const safeCities = Array.isArray(citiesData) ? citiesData : [];
 
           setCities(safeCities);
 
           const matchedCity = safeCities.find((c) => {
             const apiCity = normalizeText(c.name || "");
-
-            const detected = normalizeText(
-              detectedCity
-            );
-
-            return (
-              apiCity.includes(detected) ||
-              detected.includes(apiCity)
-            );
+            const detected = normalizeText(detectedCity);
+            return apiCity.includes(detected) || detected.includes(apiCity);
           });
 
           setValue("state", matchedState.name);
+          setValue("city", matchedCity?.name || "");
 
-          setValue(
-            "city",
-            matchedCity?.name || ""
-          );
-
-          toast.success(
-            "Location detected successfully"
-          );
+          toast.success("Location detected successfully");
         } catch (err) {
           console.error(err);
-
           toast.error("Failed to detect location");
         } finally {
           setDetectingLocation(false);
@@ -288,7 +265,6 @@ export default function ProviderSignUp() {
 
       () => {
         toast.error("Permission denied");
-
         setDetectingLocation(false);
       }
     );
@@ -298,21 +274,15 @@ export default function ProviderSignUp() {
   // FILE HANDLING
   // =========================
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
     if (!file) return;
-
     setCvFile(file);
   };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
-
     e.stopPropagation();
-
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -322,13 +292,9 @@ export default function ProviderSignUp() {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-
     e.stopPropagation();
-
     setDragActive(false);
-
     const file = e.dataTransfer.files?.[0];
-
     if (file) {
       setCvFile(file);
     }
@@ -344,14 +310,9 @@ export default function ProviderSignUp() {
   // SUBMIT
   // =========================
 
-  const onSubmit = async (
-    data: ProviderSignUpObjectType
-  ) => {
+  const onSubmit = async (data: ProviderSignUpObjectType) => {
     if (!agreeToTerms) {
-      toast.error(
-        "Please accept the terms and conditions"
-      );
-
+      toast.error("Please accept the terms and conditions");
       return;
     }
 
@@ -361,48 +322,20 @@ export default function ProviderSignUp() {
       sessionStorage.setItem("verifyEmail", data.email);
       sessionStorage.setItem("verifyRole", "provider");
       sessionStorage.setItem("verifyType", "register");
+
       const formData = new FormData();
 
-      formData.append(
-        "firstName",
-        data.firstName
-      );
-
-      formData.append(
-        "lastName",
-        data.lastName
-      );
-
+      formData.append("firstName", data.firstName);
+      formData.append("lastName", data.lastName);
       formData.append("email", data.email);
-
-      formData.append(
-        "password",
-        data.password
-      );
-
+      formData.append("password", data.password);
       formData.append("dob", data.dob);
-
-      formData.append(
-        "mobileNumber",
-        data.mobileNumber
-      );
-
-      formData.append(
-        "nationalNumber",
-        data.nationalNumber
-      );
-
-      formData.append(
-        "service",
-        data.service
-      );
-
-      formData.append(
-        "specialization",
-        data.specialization
-      );
-
+      formData.append("mobileNumber", data.mobileNumber);
+      formData.append("nationalNumber", data.nationalNumber);
+      formData.append("service", data.service);
+      formData.append("specialization", data.specialization);
       formData.append("gender", data.gender);
+      formData.append("hourPrice", String(data.hourPrice));
 
       const selectedStateName = data.state;
       const selectedCityName = data.city;
@@ -410,27 +343,18 @@ export default function ProviderSignUp() {
       formData.append("city", selectedStateName);
       formData.append("state", selectedCityName);
 
-      formData.append(
-        "writtenCv",
-        data.writtenCv?.trim() ||
-        "No CV provided"
-      );
+      formData.append("writtenCv", data.writtenCv?.trim() || "No CV provided");
+
       if (cvFile) {
         formData.append("cvFile", cvFile);
       }
 
-      const result =
-        await ProviderSignUpAction(formData);
+      const result = await ProviderSignUpAction(formData);
 
       if (result.success) {
-        toast.success(
-          "Account created successfully!"
-        );
+        toast.success("Account created successfully!");
 
-        sessionStorage.setItem(
-          "verifyEmail",
-          data.email
-        );
+        sessionStorage.setItem("verifyEmail", data.email);
 
         navigate("/verify-otp", {
           state: {
@@ -439,16 +363,11 @@ export default function ProviderSignUp() {
           },
         });
       } else {
-        toast.error(
-          result.error || "Registration failed"
-        );
+        toast.error(result.error || "Registration failed");
       }
     } catch (error) {
       console.error(error);
-
-      toast.error(
-        "An unexpected error occurred"
-      );
+      toast.error("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
@@ -479,12 +398,9 @@ export default function ProviderSignUp() {
             Join our platform and start receiving jobs
           </p>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
-            {/* NAME */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
+            {/* NAME */}
             <div className="grid md:grid-cols-2 gap-4">
               <Controller
                 name="firstName"
@@ -541,9 +457,7 @@ export default function ProviderSignUp() {
                     type="tel"
                     label="Phone Number"
                     placeholder="01012345678"
-                    error={
-                      errors.mobileNumber?.message
-                    }
+                    error={errors.mobileNumber?.message}
                     disabled={isSubmitting}
                     {...field}
                   />
@@ -566,7 +480,6 @@ export default function ProviderSignUp() {
             </div>
 
             {/* NATIONAL NUMBER */}
-
             <Controller
               name="nationalNumber"
               control={control}
@@ -574,9 +487,7 @@ export default function ProviderSignUp() {
                 <Input
                   label="National Number"
                   placeholder="Enter national number"
-                  error={
-                    errors.nationalNumber?.message
-                  }
+                  error={errors.nationalNumber?.message}
                   disabled={isSubmitting}
                   {...field}
                 />
@@ -603,7 +514,6 @@ export default function ProviderSignUp() {
             />
 
             {/* SPECIALIZATION */}
-
             <Controller
               name="specialization"
               control={control}
@@ -611,11 +521,26 @@ export default function ProviderSignUp() {
                 <Textarea
                   label="Specialization"
                   placeholder="Describe your experience..."
-                  error={
-                    errors.specialization?.message
-                  }
+                  error={errors.specialization?.message}
                   disabled={isSubmitting}
                   {...field}
+                />
+              )}
+            />
+
+            {/* HOUR PRICE */}
+            <Controller
+              name="hourPrice"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="number"
+                  label="Hour Price (EGP)"
+                  placeholder="e.g. 150"
+                  error={errors.hourPrice?.message}
+                  disabled={isSubmitting}
+                  value={field.value === 0 ? '' : String(field.value)}
+                  onChange={(e) => field.onChange(e.target.value === '' ? 0 : Number(e.target.value))}
                 />
               )}
             />
@@ -690,17 +615,17 @@ export default function ProviderSignUp() {
             </Button>
 
             {/* CV FILE */}
-
             <div>
               <label className="block mb-2 font-medium">
                 Upload CV
               </label>
 
               <div
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${dragActive
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/50"
-                  }`}
+                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                  dragActive
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -709,28 +634,19 @@ export default function ProviderSignUp() {
                 {cvFile ? (
                   <div className="flex items-center justify-center gap-3">
                     <FileText className="w-8 h-8 text-primary" />
-
                     <div>
-                      <p className="font-medium">
-                        {cvFile.name}
-                      </p>
-
+                      <p className="font-medium">{cvFile.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {(
-                          cvFile.size / 1024
-                        ).toFixed(2)}{" "}
-                        KB
+                        {(cvFile.size / 1024).toFixed(2)} KB
                       </p>
                     </div>
                   </div>
                 ) : (
                   <>
                     <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-
                     <p className="text-muted-foreground mb-2">
                       Drag & drop your CV here
                     </p>
-
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -739,7 +655,6 @@ export default function ProviderSignUp() {
                       className="hidden"
                       id="cv-upload"
                     />
-
                     <label htmlFor="cv-upload">
                       <Button
                         type="button"
@@ -756,7 +671,6 @@ export default function ProviderSignUp() {
             </div>
 
             {/* WRITTEN CV */}
-
             <Controller
               name="writtenCv"
               control={control}
@@ -770,7 +684,6 @@ export default function ProviderSignUp() {
               )}
             />
 
-
             {/* GENDER */}
             <Controller
               name="gender"
@@ -783,11 +696,7 @@ export default function ProviderSignUp() {
 
                   <div className="grid grid-cols-2 gap-4">
                     {/* MALE */}
-                    <label
-                      className={`flex items-center gap-3 rounded-xl px-4 py-3 cursor-pointer transition-all duration-200
-          ${field.value === "MALE"
-                        }`}
-                    >
+                    <label className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-pointer transition-all duration-200">
                       <input
                         type="radio"
                         value="MALE"
@@ -795,28 +704,22 @@ export default function ProviderSignUp() {
                         onChange={(e) => field.onChange(e.target.value)}
                         className="hidden"
                       />
-
                       <div
-                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
-            ${field.value === "MALE"
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                          field.value === "MALE"
                             ? "border-primary"
                             : "border-muted-foreground"
-                          }`}
+                        }`}
                       >
                         {field.value === "MALE" && (
                           <div className="w-2 h-2 rounded-full bg-primary" />
                         )}
                       </div>
-
-                      <span className="text-sm font-medium">
-                        Male
-                      </span>
+                      <span className="text-sm font-medium">Male</span>
                     </label>
 
                     {/* FEMALE */}
-                    <label
-                      className={`flex items-center gap-3 rounded-xl  px-4 py-3 cursor-pointer transition-all duration-200 ${field.value === "FEMALE"}`}
-                    >
+                    <label className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-pointer transition-all duration-200">
                       <input
                         type="radio"
                         value="FEMALE"
@@ -824,22 +727,18 @@ export default function ProviderSignUp() {
                         onChange={(e) => field.onChange(e.target.value)}
                         className="hidden"
                       />
-
                       <div
-                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
-            ${field.value === "FEMALE"
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                          field.value === "FEMALE"
                             ? "border-primary"
                             : "border-muted-foreground"
-                          }`}
+                        }`}
                       >
                         {field.value === "FEMALE" && (
                           <div className="w-2 h-2 rounded-full bg-primary" />
                         )}
                       </div>
-
-                      <span className="text-sm font-medium">
-                        Female
-                      </span>
+                      <span className="text-sm font-medium">Female</span>
                     </label>
                   </div>
 
@@ -853,18 +752,13 @@ export default function ProviderSignUp() {
             />
 
             {/* PASSWORD */}
-
             <div className="relative">
               <Controller
                 name="password"
                 control={control}
                 render={({ field }) => (
                   <Input
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showPassword ? "text" : "password"}
                     label="Password"
                     placeholder="Enter password"
                     error={errors.password?.message}
@@ -873,12 +767,9 @@ export default function ProviderSignUp() {
                   />
                 )}
               />
-
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
+                onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-11 text-muted-foreground"
               >
                 {showPassword ? (
@@ -890,36 +781,24 @@ export default function ProviderSignUp() {
             </div>
 
             {/* CONFIRM PASSWORD */}
-
             <div className="relative">
               <Controller
                 name="confirmPassword"
                 control={control}
                 render={({ field }) => (
                   <Input
-                    type={
-                      showConfirmPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showConfirmPassword ? "text" : "password"}
                     label="Confirm Password"
                     placeholder="Confirm password"
-                    error={
-                      errors.confirmPassword?.message
-                    }
+                    error={errors.confirmPassword?.message}
                     disabled={isSubmitting}
                     {...field}
                   />
                 )}
               />
-
               <button
                 type="button"
-                onClick={() =>
-                  setShowConfirmPassword(
-                    !showConfirmPassword
-                  )
-                }
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-4 top-11 text-muted-foreground"
               >
                 {showConfirmPassword ? (
@@ -931,26 +810,19 @@ export default function ProviderSignUp() {
             </div>
 
             {/* TERMS */}
-
             <label className="flex items-start gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={agreeToTerms}
-                onChange={(e) =>
-                  setAgreeToTerms(
-                    e.target.checked
-                  )
-                }
+                onChange={(e) => setAgreeToTerms(e.target.checked)}
                 className="w-4 h-4 mt-1"
               />
-
               <span className="text-sm text-muted-foreground">
                 I agree to the Terms and Conditions
               </span>
             </label>
 
             {/* SUBMIT */}
-
             <Button
               type="submit"
               className="w-full"

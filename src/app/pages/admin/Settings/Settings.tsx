@@ -372,7 +372,7 @@ export default function Settings() {
               <div>
                 <Input
                   type="number"
-                  label="Maximum Debt Limit ($)"
+                  label="Maximum Debt Limit (EGP)"
                   placeholder="Enter maximum debt limit"
                   value={debtLimit}
                   onChange={(e) => {
@@ -394,7 +394,7 @@ export default function Settings() {
 
               <div className="bg-green-50 border border-green-200 rounded p-4 text-sm text-green-800">
                 <p>
-                  <strong>Current value:</strong> ${debtLimit}
+                  <strong>Current value:</strong> {debtLimit} EGP
                 </p>
               </div>
 
@@ -433,7 +433,7 @@ export default function Settings() {
               <div>
                 <Input
                   type="number"
-                  label="Cancel Fee ($)"
+                  label="Cancel Fee (%)"
                   placeholder="Enter cancellation fee"
                   value={cancelFee}
                   onChange={(e) => {
@@ -455,7 +455,7 @@ export default function Settings() {
 
               <div className="bg-orange-50 border border-orange-200 rounded p-4 text-sm text-orange-800">
                 <p>
-                  <strong>Current value:</strong> ${cancelFee}
+                  <strong>Current value:</strong> {cancelFee}% 
                 </p>
               </div>
 

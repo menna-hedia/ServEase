@@ -2,28 +2,21 @@ import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-export default function ProviderGuard({
+export default function CustomerGuard({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const token = localStorage.getItem('access_token');
-  const approved = localStorage.getItem('provider_approved');
 
   useEffect(() => {
     if (!token) {
       toast.error('Please sign in first');
-    } else if (approved !== 'true') {
-      toast.error('Your account is pending approval');
     }
-  }, [token, approved]);
+  }, [token]);
 
   if (!token) {
     return <Navigate to="/signin" replace />;
-  }
-
-  if (approved !== 'true') {
-    return <Navigate to="/pending-approval" replace />;
   }
 
   return <>{children}</>;

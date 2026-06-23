@@ -94,7 +94,7 @@ export default function PendingApproval() {
                 <div>
                   <p className="font-medium text-muted-foreground">Final Approval</p>
                   <p className="text-sm text-muted-foreground">
-                    You'll receive an email when approved
+                    You'll be able to sign in when approved
                   </p>
                 </div>
               </div>
@@ -111,9 +111,9 @@ export default function PendingApproval() {
           </div>
 
           <div className="flex gap-3 justify-center">
-            <Button onClick={handleCheckStatus}>
+            {/* <Button onClick={handleCheckStatus}>
               Check Status
-            </Button>
+            </Button> */}
           </div>
         </Card>
       </div>

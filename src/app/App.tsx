@@ -20,18 +20,21 @@ import CustomerAbout from './pages/customer/About/CustomerAbout';
 import CustomerProfile from './pages/customer/Profile/CustomerProfile';
 import CustomerRequestDetails from './pages/customer/Requests/RequestDetails';
 import BroadcastOffersPage from './pages/customer/Broadcast/BroadcastOffersPage';
+import CustomerGuard from './pages/shared/Guard/CustomerGuard';
 
 // Provider Pages
 import ProviderHome from './pages/provider/ProviderHome';
 import ProviderRequests from './pages/provider/Requests/ProviderRequests';
 import MyCalendar from './pages/provider/Calendar/MyCalendar';
-import Billing from './pages/provider/Billing';
+import Billing from './pages/provider/Billing/Billing';
+import PaymentSuccess from './pages/provider/Billing/PaymentSuccess';
+import PaymentFailed from './pages/provider/Billing/PaymentFailed';
 import Checkout from './pages/provider/Checkout';
 import ProviderAbout from './pages/provider/ProviderAbout';
 import ProviderProfile from './pages/provider/Profile/ProviderProfile';
-import ProviderGuard from './pages/shared/Guard/ProviderGuard';
 import RequestDetails from './pages/provider/Requests/RequestDetails';
 import ProviderBroadcastPage from './pages/provider/Broadcast/ProviderBroadcastPage';
+import ProviderGuard from './pages/shared/Guard/ProviderGuard';
 
 // Admin Pages
 import AdminLogin from './pages/admin/Login/AdminLogin';
@@ -45,6 +48,7 @@ import Settings from './pages/admin/Settings/Settings';
 import Details from './pages/admin/Details/Details';
 import AdminRequestDetails from './pages/admin/ManageRequests/AdminRequestDetails';
 import ManageServices from './pages/admin/ManageServices/ManageServices';
+import AdminGuard from './pages/shared/Guard/AdminGuard';
 
 // Shared Pages
 import CustomerPublicProfile from './pages/shared/CustomerPublicProfile';
@@ -68,13 +72,13 @@ function App() {
         <Route path="/change-password" element={<ChangePassword />} />
 
         {/* Customer Routes */}
-        <Route path="/customer/home" element={<CustomerHome />} />
-        <Route path="/customer/services" element={<ServicesPage />} />
-        <Route path="/customer/requests" element={<MyRequestsPage />} />
-        <Route path="/customer/requests/:id" element={<CustomerRequestDetails />} />
-        <Route path="/customer/about" element={<CustomerAbout />} />
-        <Route path="/customer/profile" element={<CustomerProfile />} />
-        <Route path="/customer/broadcast/:id/offers" element={<BroadcastOffersPage />} />
+        <Route path="/customer/home" element={<CustomerGuard><CustomerHome /></CustomerGuard>} />
+        <Route path="/customer/services" element={<CustomerGuard><ServicesPage /></CustomerGuard>} />
+        <Route path="/customer/requests" element={<CustomerGuard><MyRequestsPage /></CustomerGuard>} />
+        <Route path="/customer/requests/:id" element={<CustomerGuard><CustomerRequestDetails /></CustomerGuard>} />
+        <Route path="/customer/about" element={<CustomerGuard><CustomerAbout /></CustomerGuard>} />
+        <Route path="/customer/profile" element={<CustomerGuard><CustomerProfile /></CustomerGuard>} />
+        <Route path="/customer/broadcast/:id/offers" element={<CustomerGuard><BroadcastOffersPage /></CustomerGuard>} />
 
         {/* Provider Routes */}
         <Route path="/provider/home" element={<ProviderGuard><ProviderHome /></ProviderGuard>} />
@@ -82,27 +86,29 @@ function App() {
         <Route path="/provider/requests/:id" element={<ProviderGuard><RequestDetails /></ProviderGuard>} />
         <Route path="/provider/calendar" element={<ProviderGuard><MyCalendar /></ProviderGuard>} />
         <Route path="/provider/billing" element={<ProviderGuard><Billing /></ProviderGuard>} />
+        <Route path="/payment-success" element={<ProviderGuard><PaymentSuccess /></ProviderGuard>} />
+        <Route path="/payment-failed" element={<ProviderGuard><PaymentFailed /></ProviderGuard>} />
         <Route path="/provider/checkout" element={<ProviderGuard><Checkout /></ProviderGuard>} />
         <Route path="/provider/about" element={<ProviderGuard><ProviderAbout /></ProviderGuard>} />
         <Route path="/provider/profile" element={<ProviderGuard><ProviderProfile /></ProviderGuard>} />
-        <Route path="/provider/broadcasts" element={<ProviderBroadcastPage />} />
+        <Route path="/provider/broadcasts" element={<ProviderGuard><ProviderBroadcastPage /></ProviderGuard>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/customers" element={<ManageCustomers />} />
-        <Route path="/admin/providers" element={<ManageProviders />} />
-        <Route path="/admin/provider-approval" element={<ProviderApproval />} />
-        <Route path="/admin/requests" element={<ManageRequests />} />
-        <Route path="/admin/requests/:id" element={<AdminRequestDetails />} />
-        <Route path="/admin/admins" element={<ManageAdmins />} />
-        <Route path="/admin/settings" element={<Settings />} />
-        <Route path="/admin/details/:id" element={<Details />} />
-        <Route path="/admin/services" element={<ManageServices />} />
+        <Route path="/admin/dashboard" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+        <Route path="/admin/customers" element={<AdminGuard><ManageCustomers /></AdminGuard>} />
+        <Route path="/admin/providers" element={<AdminGuard><ManageProviders /></AdminGuard>} />
+        <Route path="/admin/provider-approval" element={<AdminGuard><ProviderApproval /></AdminGuard>} />
+        <Route path="/admin/requests" element={<AdminGuard><ManageRequests /></AdminGuard>} />
+        <Route path="/admin/requests/:id" element={<AdminGuard><AdminRequestDetails /></AdminGuard>} />
+        <Route path="/admin/admins" element={<AdminGuard><ManageAdmins /></AdminGuard>} />
+        <Route path="/admin/settings" element={<AdminGuard><Settings /></AdminGuard>} />
+        <Route path="/admin/details/:id" element={<AdminGuard><Details /></AdminGuard>} />
+        <Route path="/admin/services" element={<AdminGuard><ManageServices /></AdminGuard>} />
 
         {/* Public Profiles */}
-        <Route path="/profile/customer/:id" element={<CustomerPublicProfile />} />
-        <Route path="/profile/provider/:id" element={<ProviderPublicProfile />} />
+        <Route path="/profile/customer/:id" element={<ProviderGuard><CustomerPublicProfile /></ProviderGuard>} />
+        <Route path="/profile/provider/:id" element={<CustomerGuard><ProviderPublicProfile /></CustomerGuard>} />
 
         {/* Shared Actions */}
         <Route path="/complete-service" element={<CompleteService />} />
@@ -110,7 +116,7 @@ function App() {
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <ChatbotDrawer />
+      {/* <ChatbotDrawer /> */}
     </BrowserRouter>
   );
 }

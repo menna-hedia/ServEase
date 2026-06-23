@@ -4,45 +4,65 @@ import { ArrowLeft, MapPin, Calendar, Clock, User, DollarSign, Check, CheckCircl
 import { toast } from 'sonner';
 import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Card from '../../../components/ui/Card';
-import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
 import { getRequestDetails, cancelRequest, acceptOffer, rejectOffer } from './MyRequestsActions';
 
 const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
 
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  confirmed: { bg: 'bg-green-100',   text: 'text-green-700',   label: 'Confirmed'  },
+  waiting:   { bg: 'bg-orange-100',  text: 'text-orange-700',  label: 'Waiting'    },
+  pending:   { bg: 'bg-yellow-100',  text: 'text-yellow-700',  label: 'Pending'    },
+  completed: { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Completed'  },
+  refused:   { bg: 'bg-red-100',     text: 'text-red-700',     label: 'Refused'    },
+  outdated:  { bg: 'bg-gray-100',    text: 'text-gray-600',    label: 'Outdated'   },
+  cancelled: { bg: 'bg-rose-100',    text: 'text-rose-700',    label: 'Cancelled'  },
+  open:      { bg: 'bg-blue-100',    text: 'text-blue-700',    label: 'Open'       },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const key = status?.toLowerCase() ?? '';
+  const style = STATUS_STYLES[key] ?? { bg: 'bg-gray-100', text: 'text-gray-600', label: status };
+  return (
+    <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}>
+      {style.label}
+    </span>
+  );
+}
+
 export default function CustomerRequestDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [request, setRequest] = useState<any>(location.state?.request || null);
+  const [request,       setRequest]       = useState<any>(location.state?.request || null);
   const [loadingRequest, setLoadingRequest] = useState(true);
   const [currentStatus, setCurrentStatus] = useState(location.state?.request?.status || '');
 
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [isAccepting, setIsAccepting] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
-const [providerHourPrice, setProviderHourPrice] = useState<number | null>(null);
+  const [isCancelling,    setIsCancelling]    = useState(false);
+  const [isAccepting,     setIsAccepting]     = useState(false);
+  const [isRejecting,     setIsRejecting]     = useState(false);
+  const [providerHourPrice, setProviderHourPrice] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (!request?.provider?._id || request?.paymentMode !== 'HOURLY') return;
 
-useEffect(() => {
-  if (!request?.provider?._id || request?.paymentMode !== 'HOURLY') return;
-  
-  const fetchProviderRate = async () => {
-    const token = localStorage.getItem('access_token');
-    const res = await fetch(`/api/customer/providers/rate/${request.provider._id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-   
-    if (!res.ok) return;
-    const data = await res.json();
-    if (data.hourPrice) setProviderHourPrice(data.hourPrice);
-  };
-  
-  fetchProviderRate();
-}, [request]);
+    const fetchProviderRate = async () => {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`/api/customer/providers/rate/${request.provider._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.hourPrice) setProviderHourPrice(data.hourPrice);
+    };
+
+    fetchProviderRate();
+  }, [request]);
+
   // ── Fetch ────────────────────────────────────────────────
   useEffect(() => {
     if (!id) return;
@@ -112,7 +132,7 @@ useEffect(() => {
     if (!start || !end || !hourPrice) return null;
     const [sh, sm] = start.split(':').map(Number);
     const [eh, em] = end.split(':').map(Number);
-    const hours = (Math.ceil((eh * 60 + em) - (sh * 60 + sm))) / 60; 
+    const hours = (Math.ceil((eh * 60 + em) - (sh * 60 + sm))) / 60;
     if (hours <= 0) return null;
     return Math.ceil(hours * hourPrice);
   };
@@ -184,9 +204,7 @@ useEffect(() => {
                     #{(request._id || request.id)?.slice(-6)}
                   </span>
                 </h1>
-                <Badge variant={status as any}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Badge>
+                <StatusBadge status={status} />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -244,39 +262,38 @@ useEffect(() => {
               </div>
 
               {/* Price */}
-        {request.price > 0 ? (
-          <div className="flex items-start gap-3 md:col-span-2">
+              {request.price > 0 ? (
+                <div className="flex items-start gap-3 md:col-span-2">
                   <DollarSign className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <p className="font-semibold text-sm">Price</p>
                     <p className="text-muted-foreground text-sm">EGP {request.price}</p>
                   </div>
                 </div>
-) : request.paymentMode === 'HOURLY' ? (
- <div className="flex items-start gap-3 md:col-span-2">
-    <DollarSign className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-    {(() => {
-      const hourPrice = request.provider?.hourPrice;
-      const estimated = calcHourlyPrice(
-        request.startTime,
-        request.endTime,
-        hourPrice
-      );
+              ) : request.paymentMode === 'HOURLY' ? (
+                <div className="flex items-start gap-3 md:col-span-2">
+                  <DollarSign className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                  {(() => {
+                    const hourPrice = request.provider?.hourPrice;
+                    const estimated = calcHourlyPrice(
+                      request.startTime,
+                      request.endTime,
+                      hourPrice
+                    );
 
-      return estimated ? (
-        <div>
-        <p className="font-semibold text-sm">Price </p>
-        <p className="text-muted-foreground text-sm">EGP {estimated} (EGP {hourPrice}/hr)</p>
-        </div>
-      ) : (
-        <span className="text-sm text-muted-foreground">
-          Hourly rate — contact provider for pricing
-        </span>
-      );
-    })()}
-  </div>
-) : null}
-  
+                    return estimated ? (
+                      <div>
+                        <p className="font-semibold text-sm">Price</p>
+                        <p className="text-muted-foreground text-sm">EGP {estimated} (EGP {hourPrice}/hr)</p>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        Hourly rate — contact provider for pricing
+                      </span>
+                    );
+                  })()}
+                </div>
+              ) : null}
 
               {/* Pending — Accept / Reject offer */}
               {status === 'pending' && (
@@ -324,8 +341,6 @@ useEffect(() => {
                   </Button>
                 </div>
               )}
-
-
             </Card>
           </div>
 

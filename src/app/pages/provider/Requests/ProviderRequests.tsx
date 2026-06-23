@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import ProviderNavbar from '../../../components/layout/ProviderNavbar';
 import Footer from '../../../components/layout/Footer';
 import Card from '../../../components/ui/Card';
-import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
 import Input from '../../../components/ui/Input';
@@ -18,18 +17,8 @@ import {
   cancelRequest,
 } from './ProviderRequestsActions';
 
-// type TabStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused';
-
 const DEFAULT_AVATAR = 'https://i.pravatar.cc/150?img=1';
 
-// const tabs: { value: TabStatus; label: string }[] = [
-//   { value: 'all',       label: 'All'       },
-//   { value: 'waiting',   label: 'Waiting'   },
-//   { value: 'pending',   label: 'Pending'   },
-//   { value: 'confirmed', label: 'Confirmed' },
-//   { value: 'completed', label: 'Completed' },
-//   { value: 'refused',   label: 'Refused'   },
-// ];
 type TabStatus = 'all' | 'waiting' | 'pending' | 'confirmed' | 'completed' | 'refused';
 
 const tabs: { value: TabStatus; label: string }[] = [
@@ -40,6 +29,28 @@ const tabs: { value: TabStatus; label: string }[] = [
   { value: 'completed', label: 'Completed' },
   { value: 'refused',   label: 'Refused'   },
 ];
+
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  confirmed: { bg: 'bg-green-100',   text: 'text-green-700',   label: 'Confirmed'  },
+  waiting:   { bg: 'bg-orange-100',  text: 'text-orange-700',  label: 'Waiting'    },
+  pending:   { bg: 'bg-yellow-100',  text: 'text-yellow-700',  label: 'Pending'    },
+  completed: { bg: 'bg-emerald-100', text: 'text-emerald-800', label: 'Completed'  },
+  refused:   { bg: 'bg-red-100',     text: 'text-red-700',     label: 'Refused'    },
+  outdated:  { bg: 'bg-gray-100',    text: 'text-gray-600',    label: 'Outdated'   },
+  cancelled: { bg: 'bg-rose-100',    text: 'text-rose-700',    label: 'Cancelled'  },
+  open:      { bg: 'bg-blue-100',    text: 'text-blue-700',    label: 'Open'       },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const key = status?.toLowerCase() ?? '';
+  const style = STATUS_STYLES[key] ?? { bg: 'bg-gray-100', text: 'text-gray-600', label: status };
+  return (
+    <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}>
+      {style.label}
+    </span>
+  );
+}
+
 export default function ProviderRequests() {
   const navigate = useNavigate();
 
@@ -237,9 +248,7 @@ export default function ProviderRequests() {
                           <h3 className="text-xl font-semibold mb-1">{getName(customer)}</h3>
                           <p className="text-sm text-muted-foreground">{request.serviceNeeded}</p>
                         </div>
-                        <Badge variant={status as any}>
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
-                        </Badge>
+                        <StatusBadge status={status} />
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-2 mb-4 text-sm text-muted-foreground">

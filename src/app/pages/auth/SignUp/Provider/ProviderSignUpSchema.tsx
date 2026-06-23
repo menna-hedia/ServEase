@@ -33,9 +33,7 @@ export const providerSignUpSchema = zod
       .string()
       .min(10, "Specialization must be at least 10 characters"),
 
-    writtenCv: zod
-      .string()
-      .optional(),
+    writtenCv: zod.string().optional(),
 
     state: zod.string().min(1, "State is required"),
 
@@ -43,18 +41,23 @@ export const providerSignUpSchema = zod
 
     gender: zod.string().min(1, "Gender is required"),
 
-    password: zod.string().max(8, "Password must be max 8 characters").regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
-      "Password must contain uppercase, lowercase and number"
-    ),
+    hourPrice: zod
+      .number("Hour price must be a number" )
+      .min(1, "Hour price must be at least 1"),
+
+    password: zod
+      .string()
+      .max(8, "Password must be max 8 characters")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+        "Password must contain uppercase, lowercase and number"
+      ),
 
     confirmPassword: zod.string(),
   })
-
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
-export type ProviderSignUpObjectType =
-  zod.infer<typeof providerSignUpSchema>;
+export type ProviderSignUpObjectType = zod.infer<typeof providerSignUpSchema>;

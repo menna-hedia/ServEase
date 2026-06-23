@@ -34,10 +34,10 @@ interface Provider {
   location?: string;
   city?: string;
   state?: string;
+  hourPrice?: number | string;
 }
 
-const DEFAULT_AVATAR =
-  'https://i.pravatar.cc/150?img=3';
+const DEFAULT_AVATAR = 'https://i.pravatar.cc/150?img=3';
 
 export default function ProviderApproval() {
   const [providers,          setProviders]          = useState<Provider[]>([]);
@@ -67,7 +67,6 @@ export default function ProviderApproval() {
             if (details.success) {
               return {
                 ...details.data,
-                // احتفظ بالـ service object من الـ pending list
                 service:
                   typeof p.service === 'object'
                     ? p.service
@@ -112,8 +111,8 @@ export default function ProviderApproval() {
 
   // ============ REJECT ============
   const handleReject = async () => {
-    if (!selectedProviderId)       { toast.error('Invalid provider ID');           return; }
-    if (!rejectionReason.trim())   { toast.error('Please provide a reason');       return; }
+    if (!selectedProviderId)     { toast.error('Invalid provider ID');     return; }
+    if (!rejectionReason.trim()) { toast.error('Please provide a reason'); return; }
 
     setIsRejecting(true);
     const result = await rejectProvider(selectedProviderId, rejectionReason);
@@ -208,6 +207,12 @@ export default function ProviderApproval() {
                       <div>
                         <p className="text-xs text-muted-foreground font-semibold">LOCATION</p>
                         <p className="text-sm">{getLocation(provider)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground font-semibold">HOUR PRICE</p>
+                        <p className="text-sm">
+                          {provider.hourPrice ? `${provider.hourPrice} EGP/hr` : '—'}
+                        </p>
                       </div>
                     </div>
                   </div>
