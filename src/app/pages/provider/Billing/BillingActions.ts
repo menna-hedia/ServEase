@@ -7,7 +7,7 @@ export async function getProviderBilling() {
     });
 
     const result = await res.json();
-    console.log('Provider billing response:', result);
+    console.log('Provider billing response888:', result);
 
     if (res.ok) {
       return {
@@ -75,7 +75,7 @@ export async function payProviderDebt() {
     });
 
     const result = await res.json();
-    console.log('Pay debt response:', result);
+    console.log('Pay debt 9999response:', result);
 
     if (res.ok) {
       if (!result.paymentUrl) {
