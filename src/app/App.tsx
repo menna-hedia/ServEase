@@ -86,8 +86,8 @@ function App() {
         <Route path="/provider/requests/:id" element={<ProviderGuard><RequestDetails /></ProviderGuard>} />
         <Route path="/provider/calendar" element={<ProviderGuard><MyCalendar /></ProviderGuard>} />
         <Route path="/provider/billing" element={<ProviderGuard><Billing /></ProviderGuard>} />
- <Route path="/payment-success" element={<PaymentSuccess />} />
-<Route path="/payment-failed" element={<PaymentFailed />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
         <Route path="/provider/checkout" element={<ProviderGuard><Checkout /></ProviderGuard>} />
         <Route path="/provider/about" element={<ProviderGuard><ProviderAbout /></ProviderGuard>} />
         <Route path="/provider/profile" element={<ProviderGuard><ProviderProfile /></ProviderGuard>} />

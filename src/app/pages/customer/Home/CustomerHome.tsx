@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, ChevronLeft, ChevronRight, Send, Mail, Phone, Clock, CheckCircle } from 'lucide-react';
 import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Footer from '../../../components/layout/Footer';
 import Button from '../../../components/ui/Button';
@@ -44,7 +44,13 @@ export default function CustomerHome() {
   const [services, setServices] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [contactSubmitted, setContactSubmitted] = useState(false);
+const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
   const navigate = useNavigate();
   const [showBroadcast, setShowBroadcast] = useState(false);
   const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
@@ -114,7 +120,17 @@ export default function CustomerHome() {
       photo: user?.profileURL || DEFAULT_AVATAR,
     };
   };
+const handleContactChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setContactForm({ ...contactForm, [e.target.name]: e.target.value });
+  };
 
+  const handleContactSubmit = (e: React.FormEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setContactSubmitted(true);
+    setContactForm({ name: '', email: '', subject: '', message: '' });
+  };
   const serviceOptions = [
     { value: '', label: 'All Services' },
     ...services.map((s) => ({ value: s._id, label: s.name })),
@@ -331,6 +347,165 @@ export default function CustomerHome() {
         </form>
       </Modal>
 
+      {/* Contact Us Section */}
+      <section id="contact" className="py-10 lg:py-32 bg-muted/30">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-5xl font-bold mb-4">Contact Us</h2>
+            <p className="text-xl text-muted-foreground">
+              We'd love to hear from you. Our team typically responds within 24 hours.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            {/* Contact Info */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-semibold mb-6">Get in Touch</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  Whether you have a question about our platform, need help with your account, or want to
+                  partner with us — our dedicated support team is here to assist you every step of the way.
+                </p>
+              </div>
+
+              <div className="space-y-5">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Email Support</p>
+                    <a
+                      href="mailto:noreply@contact.servease.me"
+                      className="text-primary hover:underline text-sm"
+                    >
+                      ServEase &lt;noreply@contact.servease.me&gt;
+                    </a>
+                    <p className="text-muted-foreground text-sm mt-1">
+                      Replies are sent from this address — please add it to your contacts.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Phone Support</p>
+                    <p className="text-muted-foreground text-sm">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground text-sm mt-1">Mon – Fri, 9 AM – 6 PM (EST)</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Response Time</p>
+                    <p className="text-muted-foreground text-sm">We aim to respond within 24 hours</p>
+                    {/* <p className="text-muted-foreground text-sm mt-1">Priority support available for Pro accounts</p> */}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div>
+              {contactSubmitted ? (
+                <Card className="flex flex-col items-center justify-center text-center py-16 space-y-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-semibold">Message Sent!</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    Thank you for reaching out. We've received your message and will reply from{' '}
+                    <span className="text-primary font-medium">noreply@contact.servease.me</span> within
+                    24 hours.
+                  </p>
+                  <Button variant="outline" onClick={() => setContactSubmitted(false)}>
+                    Send Another Message
+                  </Button>
+                </Card>
+              ) : (
+                <Card className="space-y-5">
+                  <h3 className="text-xl font-semibold mb-2">Send Us a Message</h3>
+
+                  <div
+                    role="form"
+                    onSubmit={handleContactSubmit}
+                    className="space-y-5"
+                  >
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-foreground">Full Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={contactForm.name}
+                          onChange={handleContactChange}
+                          placeholder="Ahmed Mohamed"
+                          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-foreground">Email Address</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={contactForm.email}
+                          onChange={handleContactChange}
+                          placeholder="ahmed@example.com"
+                          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-foreground">Subject</label>
+                      <input
+                        type="text"
+                        name="subject"
+                        value={contactForm.subject}
+                        onChange={handleContactChange}
+                        placeholder="How can we help you?"
+                        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-foreground">Message</label>
+                      <textarea
+                        name="message"
+                        value={contactForm.message}
+                        onChange={handleContactChange}
+                        placeholder="Tell us more about your inquiry..."
+                        rows={5}
+                        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition resize-none"
+                      />
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      Our reply will be sent from{' '}
+                      <span className="font-medium text-primary">noreply@contact.servease.me</span>.
+                      Please check your spam folder if you don't receive a response within 24 hours.
+                    </p>
+
+                    <Button
+                      onClick={handleContactSubmit}
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Send Message
+                    </Button>
+                  </div>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
       <Footer />
     </div>
   );

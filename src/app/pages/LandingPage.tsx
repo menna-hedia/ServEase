@@ -21,6 +21,7 @@ import {
   Mail,
   Phone,
   Home as HomeIcon,
+  Send,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -96,17 +97,32 @@ const reviews = [
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentReview, setCurrentReview] = useState(0);
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+  const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  const nextReview = () => {
-    setCurrentReview((prev) => (prev + 1) % reviews.length);
+  const nextReview = () => setCurrentReview((prev) => (prev + 1) % reviews.length);
+  const prevReview = () => setCurrentReview((prev) => (prev - 1 + reviews.length) % reviews.length);
+
+  const handleContactChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setContactForm({ ...contactForm, [e.target.name]: e.target.value });
   };
 
-  const prevReview = () => {
-    setCurrentReview((prev) => (prev - 1 + reviews.length) % reviews.length);
+  const handleContactSubmit = (e: React.FormEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setContactSubmitted(true);
+    setContactForm({ name: '', email: '', subject: '', message: '' });
   };
 
   return (
     <div className="min-h-screen bg-background">
+
       {/* Navbar */}
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 lg:px-8">
@@ -121,27 +137,16 @@ export default function LandingPage() {
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              <a href="#home" className="text-foreground hover:text-primary transition-colors">
-                Home
-              </a>
-              <a href="#features" className="text-foreground hover:text-primary transition-colors">
-                Features
-              </a>
-              <a href="#reviews" className="text-foreground hover:text-primary transition-colors">
-                Reviews
-              </a>
-              <a href="#about" className="text-foreground hover:text-primary transition-colors">
-                About
-              </a>
+              <a href="#home" className="text-foreground hover:text-primary transition-colors">Home</a>
+              <a href="#features" className="text-foreground hover:text-primary transition-colors">Features</a>
+              <a href="#reviews" className="text-foreground hover:text-primary transition-colors">Reviews</a>
+              <a href="#contact" className="text-foreground hover:text-primary transition-colors">Contact</a>
+              <a href="#about" className="text-foreground hover:text-primary transition-colors">About</a>
             </div>
 
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/signin">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-              <Link to="/signup/customer">
-                <Button>Sign Up</Button>
-              </Link>
+              <Link to="/signin"><Button variant="outline">Sign In</Button></Link>
+              <Link to="/signup/customer"><Button>Sign Up</Button></Link>
             </div>
 
             <button
@@ -156,23 +161,14 @@ export default function LandingPage() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-white">
             <div className="container mx-auto px-4 py-4 space-y-3">
-              <a href="#home" className="block py-2 text-foreground hover:text-primary">
-                Home
-              </a>
-              <a href="#features" className="block py-2 text-foreground hover:text-primary">
-                Features
-              </a>
-              <a href="#reviews" className="block py-2 text-foreground hover:text-primary">
-                Reviews
-              </a>
-              <a href="#about" className="block py-2 text-foreground hover:text-primary">
-                About
-              </a>
+              <a href="#home" className="block py-2 text-foreground hover:text-primary">Home</a>
+              <a href="#features" className="block py-2 text-foreground hover:text-primary">Features</a>
+              <a href="#reviews" className="block py-2 text-foreground hover:text-primary">Reviews</a>
+              <a href="#contact" className="block py-2 text-foreground hover:text-primary">Contact</a>
+              <a href="#about" className="block py-2 text-foreground hover:text-primary">About</a>
               <div className="pt-3 space-y-2">
                 <Link to="/signin" className="block">
-                  <Button variant="outline" className="w-full">
-                    Sign In
-                  </Button>
+                  <Button variant="outline" className="w-full">Sign In</Button>
                 </Link>
                 <Link to="/signup/customer" className="block">
                   <Button className="w-full">Sign Up</Button>
@@ -185,7 +181,7 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section id="home" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent" />
         <div className="container mx-auto px-4 lg:px-8 py-20 lg:py-32 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -196,8 +192,7 @@ export default function LandingPage() {
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground">
-                Connect with verified professionals for all your home service needs. Fast, reliable, and
-                affordable.
+                Connect with verified professionals for all your home service needs. Fast, reliable, and affordable.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/signup/customer">
@@ -227,9 +222,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-5xl font-bold mb-4">Why Choose ServEase</h2>
-            <p className="text-xl text-muted-foreground">
-              Everything you need for hassle-free home services
-            </p>
+            <p className="text-xl text-muted-foreground">Everything you need for hassle-free home services</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature) => (
@@ -312,8 +305,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Statistics Section */}
+{/* 
+      Statistics Section */}
       <section className="py-20 lg:py-32 bg-gradient-to-br from-primary to-accent text-white">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8 text-center">
@@ -333,9 +326,209 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer id="about" className="bg-secondary text-white py-12">
+      {/* Contact Us Section */}
+      <section id="contact" className="py-10 lg:py-32 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-5xl font-bold mb-4">Contact Us</h2>
+            <p className="text-xl text-muted-foreground">
+              We'd love to hear from you. Our team typically responds within 24 hours.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            {/* Contact Info */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-2xl font-semibold mb-6">Get in Touch</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed">
+                  Whether you have a question about our platform, need help with your account, or want to
+                  partner with us — our dedicated support team is here to assist you every step of the way.
+                </p>
+              </div>
+
+              <div className="space-y-5">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Email Support</p>
+                    <a
+                      href="mailto:noreply@contact.servease.me"
+                      className="text-primary hover:underline text-sm"
+                    >
+                      ServEase &lt;noreply@contact.servease.me&gt;
+                    </a>
+                    <p className="text-muted-foreground text-sm mt-1">
+                      Replies are sent from this address — please add it to your contacts.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Phone Support</p>
+                    <p className="text-muted-foreground text-sm">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground text-sm mt-1">Mon – Fri, 9 AM – 6 PM (EST)</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Response Time</p>
+                    <p className="text-muted-foreground text-sm">We aim to respond within 24 hours</p>
+                    {/* <p className="text-muted-foreground text-sm mt-1">Priority support available for Pro accounts</p> */}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div>
+              {contactSubmitted ? (
+                <Card className="flex flex-col items-center justify-center text-center py-16 space-y-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-semibold">Message Sent!</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    Thank you for reaching out. We've received your message and will reply from{' '}
+                    <span className="text-primary font-medium">noreply@contact.servease.me</span> within
+                    24 hours.
+                  </p>
+                  <Button variant="outline" onClick={() => setContactSubmitted(false)}>
+                    Send Another Message
+                  </Button>
+                </Card>
+              ) : (
+                <Card className="space-y-5">
+                  <h3 className="text-xl font-semibold mb-2">Send Us a Message</h3>
+
+                  <div
+                    role="form"
+                    onSubmit={handleContactSubmit}
+                    className="space-y-5"
+                  >
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-foreground">Full Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={contactForm.name}
+                          onChange={handleContactChange}
+                          placeholder="Ahmed Mohamed"
+                          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-foreground">Email Address</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={contactForm.email}
+                          onChange={handleContactChange}
+                          placeholder="ahmed@example.com"
+                          className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-foreground">Subject</label>
+                      <input
+                        type="text"
+                        name="subject"
+                        value={contactForm.subject}
+                        onChange={handleContactChange}
+                        placeholder="How can we help you?"
+                        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-foreground">Message</label>
+                      <textarea
+                        name="message"
+                        value={contactForm.message}
+                        onChange={handleContactChange}
+                        placeholder="Tell us more about your inquiry..."
+                        rows={5}
+                        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition resize-none"
+                      />
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      Our reply will be sent from{' '}
+                      <span className="font-medium text-primary">noreply@contact.servease.me</span>.
+                      Please check your spam folder if you don't receive a response within 24 hours.
+                    </p>
+
+                    <Button
+                      onClick={handleContactSubmit}
+                      className="w-full flex items-center justify-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Send Message
+                    </Button>
+                  </div>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer id="about" className="bg-secondary text-white py-16">
+        <div className="container mx-auto px-4 lg:px-8">
+
+          {/* About ServEase */}
+          <div className="mb-12 pb-12 border-b border-white/10">
+            <h3 className="text-2xl font-bold mb-6 text-center">About ServEase</h3>
+            <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <h4 className="text-lg font-semibold">For Customers</h4>
+                </div>
+                <p className="text-white/75 text-sm leading-relaxed">
+                  ServEase empowers homeowners and tenants to discover, compare, and book trusted home
+                  service professionals in minutes. Our platform lets you browse verified provider profiles,
+                  read authentic customer reviews, and track your service request in real time — all from one
+                  convenient dashboard. Every booking is backed by our satisfaction guarantee, transparent
+                  pricing, and secure in-app payment, so you can focus on what matters while we handle the rest.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
+                    <Award className="w-5 h-5 text-white" />
+                  </div>
+                  <h4 className="text-lg font-semibold">For Service Providers</h4>
+                </div>
+                <p className="text-white/75 text-sm leading-relaxed">
+                  ServEase is built to help skilled professionals grow their business without the hassle of
+                  traditional marketing. By joining our network, you gain instant access to a steady stream
+                  of qualified job requests in your area, a professional profile that showcases your skills
+                  and customer ratings, and seamless tools for scheduling, invoicing, and secure payment
+                  collection. Whether you're an independent technician or a growing service company,
+                  ServEase gives you the visibility and infrastructure to scale with confidence.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Links */}
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
@@ -351,18 +544,11 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <div className="space-y-2">
-                <a href="#home" className="block text-white/80 hover:text-white">
-                  Home
-                </a>
-                <a href="#features" className="block text-white/80 hover:text-white">
-                  Features
-                </a>
-                <a href="#reviews" className="block text-white/80 hover:text-white">
-                  Reviews
-                </a>
-                <Link to="/signin" className="block text-white/80 hover:text-white">
-                  Sign In
-                </Link>
+                <a href="#home" className="block text-white/80 hover:text-white">Home</a>
+                <a href="#features" className="block text-white/80 hover:text-white">Features</a>
+                <a href="#reviews" className="block text-white/80 hover:text-white">Reviews</a>
+                <a href="#contact" className="block text-white/80 hover:text-white">Contact</a>
+                <Link to="/signin" className="block text-white/80 hover:text-white">Sign In</Link>
               </div>
             </div>
             <div>
@@ -371,23 +557,24 @@ export default function LandingPage() {
                 <Link to="/signup/provider" className="block text-white/80 hover:text-white">
                   Join as Provider
                 </Link>
-                <a href="#" className="block text-white/80 hover:text-white">
-                  How it Works
-                </a>
-                <a href="#" className="block text-white/80 hover:text-white">
-                  Pricing
-                </a>
+                <a href="#" className="block text-white/80 hover:text-white">How it Works</a>
+                <a href="#" className="block text-white/80 hover:text-white">Pricing</a>
               </div>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Contact Us</h4>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-white/80">
-                  <Mail className="w-5 h-5" />
-                  <span>support@servease.com</span>
+                  <Mail className="w-5 h-5 flex-shrink-0" />
+                  <a
+                    href="mailto:noreply@contact.servease.me"
+                    className="hover:text-white transition-colors text-sm"
+                  >
+                    noreply@contact.servease.me
+                  </a>
                 </div>
                 <div className="flex items-center gap-2 text-white/80">
-                  <Phone className="w-5 h-5" />
+                  <Phone className="w-5 h-5 flex-shrink-0" />
                   <span>+1 (555) 123-4567</span>
                 </div>
                 <div className="flex gap-3 mt-4">
@@ -407,12 +594,13 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+
           <div className="pt-8 border-t border-white/10 text-center text-white/60">
             <p>&copy; 2026 ServEase. All rights reserved.</p>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
-
