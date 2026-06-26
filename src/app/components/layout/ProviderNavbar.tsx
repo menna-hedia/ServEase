@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Menu, X, LogOut, Briefcase, Calendar, DollarSign, Info, User , Radio } from 'lucide-react';
-import ChatbotDrawer from '../shared/ChatbotDrawer';
+import ChatbotDrawer from '../shared/Chatbot/ChatbotDrawer';
 import { logoutAction } from '../../pages/auth/logout';
 import { toast } from 'sonner'
 
@@ -9,7 +9,6 @@ export default function ProviderNavbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-
   const navItems = [
     { path: '/provider/home', label: 'Home', icon: Home },
     { path: '/provider/requests', label: 'Requests', icon: Briefcase },
@@ -19,7 +18,12 @@ export default function ProviderNavbar() {
     { path: '/provider/about', label: 'About', icon: Info },
     { path: '/provider/profile', label: 'Profile', icon: User },
   ];
+const [accessToken, setAccessToken] = useState<string | null>(null);
 
+useEffect(() => {
+  const token = localStorage.getItem("access_token");
+  setAccessToken(token);
+}, []);
     const handleLogout = () => {
     logoutAction();
 
@@ -31,6 +35,7 @@ export default function ProviderNavbar() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
+    <>
     <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -106,9 +111,11 @@ export default function ProviderNavbar() {
           </div>
         </div>
       )}
-
-      {/* <ChatbotDrawer /> */}
+{/* <ChatbotDrawer token={accessToken} role="provider" /> */}
+      
     </nav>
+    <ChatbotDrawer />
+    </>
   );
 }
 

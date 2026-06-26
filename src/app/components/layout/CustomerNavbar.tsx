@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Menu, X, LogOut, Briefcase, User, Info } from 'lucide-react';
-import ChatbotDrawer from '../shared/ChatbotDrawer';
+import ChatbotDrawer from '../shared/Chatbot/ChatbotDrawer';
 import { logoutAction } from '../../pages/auth/logout';
 import { toast } from 'sonner';
 
@@ -16,7 +16,12 @@ export default function CustomerNavbar() {
     { path: '/customer/about', label: 'About', icon: Info },
     { path: '/customer/profile', label: 'Profile', icon: User },
   ];
+const [accessToken, setAccessToken] = useState<string | null>(null);
 
+useEffect(() => {
+  const token = localStorage.getItem("access_token"); 
+  setAccessToken(token);
+}, []);
   const isActive = (path: string) => location.pathname === path;
   const handleLogout = () => {
     logoutAction();
@@ -26,6 +31,7 @@ export default function CustomerNavbar() {
     navigate('/admin/login');
   };
   return (
+    <>
     <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -101,9 +107,11 @@ export default function CustomerNavbar() {
           </div>
         </div>
       )}
-
-      {/* <ChatbotDrawer /> */}
+{/* <ChatbotDrawer token={accessToken} role="customer" /> */}
+      
     </nav>
+    <ChatbotDrawer />
+</>
   );
 }
 

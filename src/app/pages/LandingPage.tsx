@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Menu,
@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import { getGeneralCounts } from './shared/Services/generalCounts';
 
 const categories = [
   { name: 'Electrician', icon: '⚡', color: 'bg-yellow-100' },
@@ -119,6 +120,29 @@ export default function LandingPage() {
     setContactSubmitted(true);
     setContactForm({ name: '', email: '', subject: '', message: '' });
   };
+  const [counts, setCounts] = useState({
+    providerCount: 0,
+    requesterCount: 0,
+    userSatisfaction: 0,
+  });
+  const [loadingCounts, setLoadingCounts] = useState(true);
+
+  useEffect(() => {
+    const loadCounts = async () => {
+      setLoadingCounts(true);
+      const result = await getGeneralCounts();
+      setLoadingCounts(false);
+
+      if (result.success) {
+        setCounts({
+          providerCount: result.data.providerCount ?? 0,
+          requesterCount: result.data.requesterCount ?? 0,
+          userSatisfaction: result.data.userSatisfaction ?? 0,
+        });
+      }
+    };
+    loadCounts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -179,43 +203,45 @@ export default function LandingPage() {
         )}
       </nav>
 
-      {/* Hero Section */}
-      <section id="home" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent" />
-        <div className="container mx-auto px-4 lg:px-8 py-20 lg:py-32 relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                Your Trusted Home Services{' '}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Marketplace
-                </span>
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                Connect with verified professionals for all your home service needs. Fast, reliable, and affordable.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/signup/customer">
-                  <Button size="lg" className="w-full sm:w-auto group">
-                    Find Service
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                  </Button>
-                </Link>
-                <Link to="/signup/provider">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    I'm a Provider
-                  </Button>
-                </Link>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="w-full h-96 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center">
-                <div className="text-8xl">🏠</div>
-              </div>
-            </div>
-          </div>
+    {/* Hero Section */}
+<section id="home" className="relative overflow-hidden">
+  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent" />
+  <div className="container mx-auto px-4 lg:px-8 py-20 lg:py-32 relative">
+    <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="space-y-8">
+        <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+          Your Trusted Home & Office Services{' '}
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Marketplace
+          </span>
+        </h1>
+        <p className="text-xl text-muted-foreground">
+          Connect with verified professionals for all your home and office needs. Fast, reliable, and affordable.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link to="/signup/customer">
+            <Button size="lg" className="w-full sm:w-auto group">
+              Find Service
+              <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+            </Button>
+          </Link>
+          <Link to="/signup/provider">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto">
+              I'm a Provider
+            </Button>
+          </Link>
         </div>
-      </section>
+      </div>
+      <div className="relative">
+        <img
+          src="/hero-home-office.png"
+          alt="Home and office services illustration"
+          className="w-full h-96 object-cover rounded-3xl"
+        />
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Features Section */}
       <section id="features" className="py-20 lg:py-32">
@@ -307,24 +333,30 @@ export default function LandingPage() {
       </section>
 {/* 
       Statistics Section */}
-      <section className="py-20 lg:py-32 bg-gradient-to-br from-primary to-accent text-white">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-5xl font-bold mb-2">5,000+</div>
-              <p className="text-xl text-white/90">Registered Providers</p>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2">50,000+</div>
-              <p className="text-xl text-white/90">Completed Services</p>
-            </div>
-            <div>
-              <div className="text-5xl font-bold mb-2">98%</div>
-              <p className="text-xl text-white/90">User Satisfaction</p>
+      <section>
+          <div className="bg-gradient-to-br from-primary to-accent text-white p-8 lg:p-12">
+            <div className="grid md:grid-cols-3 gap-8 text-center">
+              <div>
+                <div className="text-5xl font-bold mb-2">
+                  {loadingCounts ? '—' : `${counts.providerCount.toLocaleString()}+`}
+                </div>
+                <p className="text-xl text-white/90">Registered Providers</p>
+              </div>
+              <div>
+                <div className="text-5xl font-bold mb-2">
+                  {loadingCounts ? '—' : `${counts.requesterCount.toLocaleString()}+`}
+                </div>
+                <p className="text-xl text-white/90">Compeleted Services</p>
+              </div>
+              <div>
+                <div className="text-5xl font-bold mb-2">
+                  {loadingCounts ? '—' : `${(counts.userSatisfaction * 20).toFixed(0)}%`}
+                </div>
+                <p className="text-xl text-white/90">User Satisfaction</p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Contact Us Section */}
       <section id="contact" className="py-10 lg:py-32 bg-muted/30">

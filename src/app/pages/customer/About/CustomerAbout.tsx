@@ -3,7 +3,7 @@ import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Footer from '../../../components/layout/Footer';
 import Card from '../../../components/ui/Card';
 import { Zap, Shield, Clock, MessageSquare, Star, MapPin } from 'lucide-react';
-import { getGeneralCounts } from './CustomerAboutActions';
+import { getGeneralCounts } from '../../shared/Services/generalCounts';
 
 const features = [
   {

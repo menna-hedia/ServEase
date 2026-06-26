@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import ChatbotDrawer from './components/shared/ChatbotDrawer';
+import ChatbotDrawer from './components/shared/Chatbot/ChatbotDrawer';
 
 // Landing & Auth
 import LandingPage from './pages/LandingPage';
@@ -30,7 +30,7 @@ import Billing from './pages/provider/Billing/Billing';
 import PaymentSuccess from './pages/provider/Billing/PaymentSuccess';
 import PaymentFailed from './pages/provider/Billing/PaymentFailed';
 import Checkout from './pages/provider/Checkout';
-import ProviderAbout from './pages/provider/ProviderAbout';
+import ProviderAbout from './pages/provider/About/ProviderAbout';
 import ProviderProfile from './pages/provider/Profile/ProviderProfile';
 import RequestDetails from './pages/provider/Requests/RequestDetails';
 import ProviderBroadcastPage from './pages/provider/Broadcast/ProviderBroadcastPage';
