@@ -90,39 +90,93 @@ const handleContactChange = (
       <div className="container mx-auto px-4 lg:px-8 py-8">
 
         {/* Hero */}
-        <section className="mb-12">
-          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent rounded-3xl p-8 lg:p-16">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-2xl" />
-            <div className="relative z-10">
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4 text-white leading-tight">
-                Welcome Back{providerName ? `, ${providerName}` : ''}! 👋
-              </h1>
-              <p className="text-xl lg:text-2xl text-white/90 mb-8 max-w-2xl">
-                {waiting > 0
-                  ? `You have ${waiting} new service request${waiting > 1 ? 's' : ''} waiting for your response.`
-                  : "You're all caught up! No pending requests right now."}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/provider/requests">
-                  <Button size="lg" variant="secondary" className="w-full sm:w-auto shadow-xl">
-                    View Requests
-                    <span className="ml-2">→</span>
-                  </Button>
-                </Link>
-                <Link to="/provider/calendar">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/30"
-                  >
-                    My Calendar
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+<section className="mb-12">
+  <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary via-primary/95 to-accent shadow-2xl">
+
+    {/* Background decoration */}
+    <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+    <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-cyan-300/10 blur-3xl" />
+
+    {/* Grid Pattern */}
+    <div
+      className="absolute inset-0 opacity-[0.06]"
+      style={{
+        backgroundImage:
+          "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }}
+    />
+
+    <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10 p-8 lg:p-14">
+
+      {/* Left */}
+      <div className="max-w-2xl">
+        <span className="inline-flex items-center rounded-full bg-white/15 backdrop-blur px-4 py-1 text-sm text-white border border-white/20">
+          Provider Dashboard
+        </span>
+
+        <h1 className="mt-5 text-4xl lg:text-5xl font-bold text-white leading-tight">
+          Welcome back
+          {providerName && (
+            <span className="text-cyan-200">, {providerName}</span>
+          )}
+        </h1>
+
+        <p className="mt-4 text-lg text-white/85 leading-relaxed max-w-xl">
+          {waiting > 0
+            ? `You have ${waiting} pending request${waiting > 1 ? "s" : ""}. Respond quickly to improve your acceptance rate.`
+            : "Everything looks great! No pending requests at the moment."}
+        </p>
+
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Link to="/provider/requests">
+            <Button
+              size="lg"
+              className="shadow-xl bg-white text-primary hover:bg-gray-100"
+            >
+              View Requests →
+            </Button>
+          </Link>
+
+          <Link to="/provider/calendar">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur"
+            >
+              My Calendar
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Right */}
+      <div className="hidden lg:flex flex-col gap-4 min-w-[240px]">
+
+        <div className="rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 p-5">
+          <p className="text-sm text-white/70">
+            Pending Requests
+          </p>
+
+          <h2 className="mt-1 text-5xl font-bold text-white">
+            {waiting}
+          </h2>
+        </div>
+
+        <div className="rounded-2xl bg-white/10 backdrop-blur-lg border border-white/20 p-5">
+          <p className="text-sm text-white/70">
+            Status
+          </p>
+
+          <h3 className="mt-2 font-semibold text-green-300">
+            ● Available for Work
+          </h3>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
 
         {/* Stats */}
         <section className="mb-12">

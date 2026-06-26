@@ -26,6 +26,7 @@ import {
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { getGeneralCounts } from './shared/Services/generalCounts';
+// import landingImage from '../images/landing.jpg';
 
 const categories = [
   { name: 'Electrician', icon: '⚡', color: 'bg-yellow-100' },
@@ -232,13 +233,13 @@ export default function LandingPage() {
           </Link>
         </div>
       </div>
-      <div className="relative">
-        <img
-          src="/hero-home-office.png"
-          alt="Home and office services illustration"
-          className="w-full h-96 object-cover rounded-3xl"
-        />
-      </div>
+      {/* <div className="relative">
+       <img
+  src='.\images\landing.jpg'
+  alt="Home and office services illustration"
+  className="w-full h-96 object-cover rounded-3xl"
+/>
+      </div> */}
     </div>
   </div>
 </section>

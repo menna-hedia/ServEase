@@ -145,40 +145,101 @@ const handleContactChange = (
       <div className="container mx-auto px-4 lg:px-8 py-8">
 
         {/* ── Hero ── */}
-        <section className="mb-12">
-          <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent rounded-3xl p-8 lg:p-16">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-2xl" />
+     <section className="mb-12">
+  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/95 to-accent shadow-2xl">
 
-            <div className="relative z-10 max-w-3xl">
-              <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white leading-tight">
-                Find Your Perfect
-                <br />
-                <span className="text-white/90">Home Service</span>
-              </h1>
-              <p className="text-xl lg:text-2xl text-white/90 mb-8 max-w-2xl">
-                Connect with verified professionals for all your home service needs.
-              </p>
+    {/* Decorations */}
+    <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+    <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-cyan-300/10 blur-3xl" />
 
-              <div className="flex flex-wrap gap-4">
-                <Link to="/customer/services">
-                  <Button size="lg" variant="secondary" className="shadow-xl">
-                    Browse Services →
-                  </Button>
-                </Link>
+    <div
+      className="absolute inset-0 opacity-[0.05]"
+      style={{
+        backgroundImage:
+          "linear-gradient(to right, white 1px, transparent 1px),linear-gradient(to bottom, white 1px, transparent 1px)",
+        backgroundSize: "42px 42px",
+      }}
+    />
 
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="shadow-xl border-white text-white hover:bg-white hover:text-primary transition-colors"
-                  onClick={() => setShowBroadcast(true)}
-                >
-                  Broadcast Request
-                </Button>
-              </div>
-            </div>
+    <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center p-8 lg:p-14">
+
+      {/* Left Side */}
+      <div>
+
+        <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm text-white backdrop-blur">
+        Trusted Home Services
+        </span>
+
+        <h1 className="mt-6 text-4xl lg:text-6xl font-bold text-white leading-tight">
+          Find Your Perfect
+          <br />
+          <span className="text-cyan-200">
+            Home Service
+          </span>
+        </h1>
+
+        <p className="mt-5 max-w-xl text-lg lg:text-xl text-white/85 leading-relaxed">
+          Connect with trusted professionals, compare offers,
+          and get your job done quickly with complete confidence.
+        </p>
+
+        <div className="mt-8 flex flex-wrap gap-4">
+
+          <Link to="/customer/services">
+            <Button
+              size="lg"
+              className="bg-white text-primary hover:bg-gray-100 shadow-xl"
+            >
+              Browse Services →
+            </Button>
+          </Link>
+
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => setShowBroadcast(true)}
+            className="border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur"
+          >
+            Broadcast Request
+          </Button>
+
+        </div>
+
+      </div>
+
+      {/* Right Side */}
+      <div className="hidden lg:flex justify-end">
+
+        <div className="grid gap-4 w-[300px]">
+
+          <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-lg p-6">
+            <p className="text-sm text-white/70">
+              Verified Providers
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold text-white">
+              500+
+            </h2>
           </div>
-        </section>
+
+
+          <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-lg p-6">
+            <p className="text-sm text-white/70">
+              Customer Rating
+            </p>
+
+            <h2 className="mt-2 text-4xl font-bold text-white">
+               4.9
+            </h2>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
 
         <CreateBroadcastModal
           isOpen={showBroadcast}
