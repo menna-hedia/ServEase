@@ -2,7 +2,7 @@ export async function getAllServices() {
   try {
     const res = await fetch('/api/service/all');
     const result = await res.json();
-console.log(result)
+
     if (res.ok) {
       return {
         success: true,
