@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ChevronLeft, ChevronRight, Send, Mail, Phone, Clock, CheckCircle } from 'lucide-react';
+import { Star, ChevronLeft, ChevronRight, Send, Mail, Phone, Clock, CheckCircle, Trash2 } from 'lucide-react';
 import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Footer from '../../../components/layout/Footer';
 import Button from '../../../components/ui/Button';
@@ -10,7 +10,7 @@ import Modal from '../../../components/ui/Modal';
 import Textarea from '../../../components/ui/Textarea';
 import { SkeletonCard } from '../../../components/ui/Skeleton';
 import { toast } from 'sonner';
-import { getGlobalReviews, submitGlobalReview } from './ReviewActions';
+import { getGlobalReviews, submitGlobalReview, deleteGlobalReview } from '../../shared/Services/ReviewActions';
 import { getAllServices } from '../../shared/Services/ServicesActions';
 import { useNavigate } from 'react-router-dom';
 import CreateBroadcastModal from '../Broadcast/CreateBroadcastModal';
@@ -34,6 +34,17 @@ const categoryIcons: Record<string, { icon: string; color: string }> = {
   'Locksmith': { icon: '🔑', color: 'bg-slate-100' },
 };
 
+function getUserIdFromToken(): string {
+  try {
+    const token = localStorage.getItem('access_token');
+    if (!token) return '';
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.id || payload._id || payload.userId || payload.sub || '';
+  } catch {
+    return '';
+  }
+}
+
 export default function CustomerHome() {
   const [currentReview, setCurrentReview] = useState(0);
   const [showAddReview, setShowAddReview] = useState(false);
@@ -45,15 +56,22 @@ export default function CustomerHome() {
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactSubmitted, setContactSubmitted] = useState(false);
-const [contactForm, setContactForm] = useState({
+  const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
     subject: '',
     message: '',
   });
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
   const navigate = useNavigate();
   const [showBroadcast, setShowBroadcast] = useState(false);
   const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
+
+  useEffect(() => {
+    setCurrentUserId(getUserIdFromToken());
+  }, []);
+
   // ============ LOAD DATA ============
   useEffect(() => {
     const load = async () => {
@@ -89,16 +107,14 @@ const [contactForm, setContactForm] = useState({
       setReviewText('');
       setReviewRating(5);
 
-      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-
       const newReview = {
         ...result.data,
         userId: {
-          _id: storedUser._id || storedUser.id || result.data.userId,
-          userName: storedUser.userName || '',
-          firstName: storedUser.firstName || '',
-          lastName: storedUser.lastName || '',
-          profileURL: storedUser.profileURL || '',
+          _id: getUserIdFromToken() || result.data.userId,
+          userName: '',
+          firstName: '',
+          lastName: '',
+          profileURL: '',
         },
       };
 
@@ -106,6 +122,27 @@ const [contactForm, setContactForm] = useState({
       setCurrentReview(0);
     } else {
       toast.error(result.error || 'Failed to submit review');
+    }
+  };
+
+  // ============ DELETE REVIEW ============
+  const handleDeleteReview = async (reviewId: string) => {
+    const confirmed = window.confirm('Are you sure you want to delete this review?');
+    if (!confirmed) return;
+
+    setDeletingReviewId(reviewId);
+    const result = await deleteGlobalReview(reviewId);
+    setDeletingReviewId(null);
+
+    if (result.success) {
+      toast.success(result.message || 'Review deleted successfully');
+      setReviews((prev) => {
+        const updated = prev.filter((r) => r._id !== reviewId);
+        return updated;
+      });
+      setCurrentReview((prev) => (prev > 0 ? prev - 1 : 0));
+    } else {
+      toast.error(result.error || 'Failed to delete review');
     }
   };
 
@@ -120,7 +157,8 @@ const [contactForm, setContactForm] = useState({
       photo: user?.profileURL || DEFAULT_AVATAR,
     };
   };
-const handleContactChange = (
+
+  const handleContactChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setContactForm({ ...contactForm, [e.target.name]: e.target.value });
@@ -131,6 +169,7 @@ const handleContactChange = (
     setContactSubmitted(true);
     setContactForm({ name: '', email: '', subject: '', message: '' });
   };
+
   const serviceOptions = [
     { value: '', label: 'All Services' },
     ...services.map((s) => ({ value: s._id, label: s.name })),
@@ -145,101 +184,101 @@ const handleContactChange = (
       <div className="container mx-auto px-4 lg:px-8 py-8">
 
         {/* ── Hero ── */}
-     <section className="mb-12">
-  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/95 to-accent shadow-2xl">
+        <section className="mb-12">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary/95 to-accent shadow-2xl">
 
-    {/* Decorations */}
-    <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
-    <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-cyan-300/10 blur-3xl" />
+            {/* Decorations */}
+            <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-cyan-300/10 blur-3xl" />
 
-    <div
-      className="absolute inset-0 opacity-[0.05]"
-      style={{
-        backgroundImage:
-          "linear-gradient(to right, white 1px, transparent 1px),linear-gradient(to bottom, white 1px, transparent 1px)",
-        backgroundSize: "42px 42px",
-      }}
-    />
+            <div
+              className="absolute inset-0 opacity-[0.05]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, white 1px, transparent 1px),linear-gradient(to bottom, white 1px, transparent 1px)",
+                backgroundSize: "42px 42px",
+              }}
+            />
 
-    <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center p-8 lg:p-14">
+            <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center p-8 lg:p-14">
 
-      {/* Left Side */}
-      <div>
+              {/* Left Side */}
+              <div>
 
-        <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm text-white backdrop-blur">
-        Trusted Home Services
-        </span>
+                <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm text-white backdrop-blur">
+                  Trusted Home Services
+                </span>
 
-        <h1 className="mt-6 text-4xl lg:text-6xl font-bold text-white leading-tight">
-          Find Your Perfect
-          <br />
-          <span className="text-cyan-200">
-            Home Service
-          </span>
-        </h1>
+                <h1 className="mt-6 text-4xl lg:text-6xl font-bold text-white leading-tight">
+                  Find Your Perfect
+                  <br />
+                  <span className="text-cyan-200">
+                    Home Service
+                  </span>
+                </h1>
 
-        <p className="mt-5 max-w-xl text-lg lg:text-xl text-white/85 leading-relaxed">
-          Connect with trusted professionals, compare offers,
-          and get your job done quickly with complete confidence.
-        </p>
+                <p className="mt-5 max-w-xl text-lg lg:text-xl text-white/85 leading-relaxed">
+                  Connect with trusted professionals, compare offers,
+                  and get your job done quickly with complete confidence.
+                </p>
 
-        <div className="mt-8 flex flex-wrap gap-4">
+                <div className="mt-8 flex flex-wrap gap-4">
 
-          <Link to="/customer/services">
-            <Button
-              size="lg"
-              className="bg-white text-primary hover:bg-gray-100 shadow-xl"
-            >
-              Browse Services →
-            </Button>
-          </Link>
+                  <Link to="/customer/services">
+                    <Button
+                      size="lg"
+                      className="bg-white text-primary hover:bg-gray-100 shadow-xl"
+                    >
+                      Browse Services →
+                    </Button>
+                  </Link>
 
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => setShowBroadcast(true)}
-            className="border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur"
-          >
-            Broadcast Request
-          </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setShowBroadcast(true)}
+                    className="border-white/30 bg-white/10 text-white hover:bg-white/20 backdrop-blur"
+                  >
+                    Broadcast Request
+                  </Button>
 
-        </div>
+                </div>
 
-      </div>
+              </div>
 
-      {/* Right Side */}
-      <div className="hidden lg:flex justify-end">
+              {/* Right Side */}
+              <div className="hidden lg:flex justify-end">
 
-        <div className="grid gap-4 w-[300px]">
+                <div className="grid gap-4 w-[300px]">
 
-          <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-lg p-6">
-            <p className="text-sm text-white/70">
-              Verified Providers
-            </p>
+                  <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-lg p-6">
+                    <p className="text-sm text-white/70">
+                      Verified Providers
+                    </p>
 
-            <h2 className="mt-2 text-4xl font-bold text-white">
-              500+
-            </h2>
+                    <h2 className="mt-2 text-4xl font-bold text-white">
+                      500+
+                    </h2>
+                  </div>
+
+
+                  <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-lg p-6">
+                    <p className="text-sm text-white/70">
+                      Customer Rating
+                    </p>
+
+                    <h2 className="mt-2 text-4xl font-bold text-white">
+                      4.9
+                    </h2>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
           </div>
-
-
-          <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-lg p-6">
-            <p className="text-sm text-white/70">
-              Customer Rating
-            </p>
-
-            <h2 className="mt-2 text-4xl font-bold text-white">
-               4.9
-            </h2>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-</section>
+        </section>
 
         <CreateBroadcastModal
           isOpen={showBroadcast}
@@ -288,7 +327,7 @@ const handleContactChange = (
         {/* ── Reviews ── */}
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Customer Reviews</h2>
+            <h2 className="text-2xl font-bold">Platform Reviews</h2>
             <Button onClick={() => setShowAddReview(true)} variant="outline">
               Add Review
             </Button>
@@ -304,12 +343,25 @@ const handleContactChange = (
             </div>
           ) : (
             <div className="max-w-3xl mx-auto">
-              <Card className="p-8">
+              <Card className="p-8 relative">
                 {(() => {
                   const rev = reviews[currentReview];
                   const { name, photo } = getReviewUser(rev);
+                  const reviewOwnerId = typeof rev?.userId === 'object' ? rev.userId._id : rev?.userId;
+                  const isOwnReview = currentUserId && reviewOwnerId === currentUserId;
+
                   return (
                     <div className="flex flex-col items-center text-center space-y-4">
+                      {isOwnReview && (
+                        <button
+                          onClick={() => handleDeleteReview(rev._id)}
+                          disabled={deletingReviewId === rev._id}
+                          className="absolute top-4 right-4 p-2 rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          title="Delete review"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                       <img
                         src={photo}
                         alt={name}
@@ -466,7 +518,6 @@ const handleContactChange = (
                   <div>
                     <p className="font-semibold text-foreground">Response Time</p>
                     <p className="text-muted-foreground text-sm">We aim to respond within 24 hours</p>
-                    {/* <p className="text-muted-foreground text-sm mt-1">Priority support available for Pro accounts</p> */}
                   </div>
                 </div>
               </div>

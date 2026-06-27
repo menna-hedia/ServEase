@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Home, Facebook, Twitter, Instagram, Linkedin, Mail, Phone } from 'lucide-react';
-
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone } from 'lucide-react';
+import logo from "../../components/images/logoWhite.png"
 export default function Footer() {
   return (
     <footer className="bg-secondary text-white py-12 mt-auto">
@@ -9,7 +9,11 @@ export default function Footer() {
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                <Home className="w-6 h-6 text-white" />
+                  <img
+    src={logo}
+    alt="ServEase"
+    className="w-8 h-8 object-contain"
+  />
               </div>
               <span className="text-2xl font-bold">ServEase</span>
             </Link>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import logo from "../components/images/logoWhite.png"
 import {
   Menu,
   X,
@@ -20,13 +21,13 @@ import {
   Linkedin,
   Mail,
   Phone,
-  Home as HomeIcon,
+  // Home as HomeIcon,
   Send,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { getGeneralCounts } from './shared/Services/generalCounts';
-// import landingImage from '../images/landing.jpg';
+import landingImage from '../components/images/landing.jpg';
 
 const categories = [
   { name: 'Electrician', icon: '⚡', color: 'bg-yellow-100' },
@@ -153,9 +154,13 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                <HomeIcon className="w-6 h-6 text-white" />
-              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center overflow-hidden">
+  <img
+    src={logo}
+    alt="ServEase"
+    className="w-8 h-8 object-contain"
+  />
+</div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ServEase
               </span>
@@ -233,13 +238,13 @@ export default function LandingPage() {
           </Link>
         </div>
       </div>
-      {/* <div className="relative">
+      <div className="relative">
        <img
-  src='.\images\landing.jpg'
+  src={landingImage}
   alt="Home and office services illustration"
   className="w-full h-96 object-cover rounded-3xl"
 />
-      </div> */}
+      </div>
     </div>
   </div>
 </section>
@@ -565,9 +570,13 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                  <HomeIcon className="w-6 h-6 text-white" />
-                </div>
+               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center overflow-hidden">
+  <img
+    src={logo}
+    alt="ServEase"
+    className="w-8 h-8 object-contain"
+  />
+</div>
                 <span className="text-2xl font-bold">ServEase</span>
               </div>
               <p className="text-white/80">

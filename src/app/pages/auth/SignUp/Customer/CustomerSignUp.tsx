@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Home, MapPin, Eye, EyeOff, Loader } from "lucide-react";
+import { MapPin, Eye, EyeOff, Loader } from "lucide-react";
 import { toast } from "sonner";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import logo from "../../../../components/images/logoWhite.png"
 import Button from "../../../../components/ui/Button";
 import Input from "../../../../components/ui/Input";
 import Select from "../../../../components/ui/Select";
@@ -247,7 +247,11 @@ export default function CustomerSignUp() {
         {/* LOGO */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-            <Home className="w-7 h-7 text-white" />
+              <img
+    src={logo}
+    alt="ServEase"
+    className="w-10 h-10 object-contain"
+  />
           </div>
           <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             ServEase

@@ -23,7 +23,7 @@ import BroadcastOffersPage from './pages/customer/Broadcast/BroadcastOffersPage'
 import CustomerGuard from './pages/shared/Guard/CustomerGuard';
 
 // Provider Pages
-import ProviderHome from './pages/provider/ProviderHome';
+import ProviderHome from './pages/provider/Home/ProviderHome';
 import ProviderRequests from './pages/provider/Requests/ProviderRequests';
 import MyCalendar from './pages/provider/Calendar/MyCalendar';
 import Billing from './pages/provider/Billing/Billing';

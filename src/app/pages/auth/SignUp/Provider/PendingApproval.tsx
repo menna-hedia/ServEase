@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Clock, CheckCircle, FileCheck } from 'lucide-react';
+import { Clock, CheckCircle, FileCheck } from 'lucide-react';
+import logo from "../../../../components/images/logoWhite.png"
 import Card from '../../../../components/ui/Card';
 import Button from '../../../../components/ui/Button';
 import { toast } from 'sonner';
@@ -42,7 +43,11 @@ export default function PendingApproval() {
       <div className="w-full max-w-2xl">
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-            <Home className="w-7 h-7 text-white" />
+                         <img
+    src={logo}
+    alt="ServEase"
+    className="w-10 h-10 object-contain"
+  />
           </div>
           <span className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             ServEase

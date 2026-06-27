@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Menu, X, LogOut, Briefcase, Calendar, DollarSign, Info, User , Radio } from 'lucide-react';
 import ChatbotDrawer from '../shared/Chatbot/ChatbotDrawer';
+import logo from "../../components/images/logoWhite.png"
 import { logoutAction } from '../../pages/auth/logout';
 import { toast } from 'sonner'
 
@@ -19,7 +20,7 @@ export default function ProviderNavbar() {
     { path: '/provider/profile', label: 'Profile', icon: User },
   ];
 const [accessToken, setAccessToken] = useState<string | null>(null);
-
+const token = localStorage.getItem("access_token");
 useEffect(() => {
   const token = localStorage.getItem("access_token");
   setAccessToken(token);
@@ -41,7 +42,11 @@ useEffect(() => {
         <div className="flex items-center justify-between h-16">
           <Link to="/provider/home" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-              <Home className="w-6 h-6 text-white" />
+                <img
+    src={logo}
+    alt="ServEase"
+    className="w-8 h-8 object-contain"
+  />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               ServEase
@@ -111,10 +116,11 @@ useEffect(() => {
           </div>
         </div>
       )}
-{/* <ChatbotDrawer token={accessToken} role="provider" /> */}
+
       
     </nav>
-    <ChatbotDrawer />
+      {accessToken && (
+     <ChatbotDrawer token={accessToken} role="provider" />)}
     </>
   );
 }

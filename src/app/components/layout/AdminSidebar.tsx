@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, LayoutDashboard, Users, Briefcase, UserCheck, ClipboardList, UserCog, Settings, LogOut, Wrench } from 'lucide-react';
 import { adminLogoutAction } from '../../pages/admin/Login/AdminLoginActions';
+import logo from "../../components/images/logoWhite.png"
 import { toast } from 'sonner';
 
 export default function AdminSidebar() {
@@ -32,7 +33,11 @@ export default function AdminSidebar() {
     <div className="w-64 min-h-screen bg-secondary text-white p-6">
       <Link to="/admin/dashboard" className="flex items-center gap-2 mb-8">
         <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-          <Home className="w-6 h-6" />
+            <img
+    src={logo}
+    alt="ServEase"
+    className="w-8 h-8 object-contain"
+  />
         </div>
         <span className="text-xl font-bold">ServEase Admin</span>
       </Link>
