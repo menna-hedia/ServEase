@@ -14,29 +14,34 @@ export function useChat(token: string) {
   const [error, setError] = useState<string | null>(null);
   const socketRef = useRef(getChatSocket(token));
 
-  useEffect(() => {
-    const socket = socketRef.current;
+useEffect(() => {
+  const socket = socketRef.current;
 
-    socket.on('chat:response', ({ answer }: { answer: string }) => {
-      setMessages((prev) => [...prev, { role: 'assistant', text: answer }]);
-      setLoading(false);
-    });
+  socket.on('chat:response', (data: { answer: string }) => {
+    console.log('chat:response raw payload:', data);
+    setMessages((prev) => [...prev, { role: 'assistant', text: data.answer }]);
+    setLoading(false);
+  });
 
-    socket.on('chat:history', (history: ChatMessage[]) => setMessages(history));
+  socket.on('chat:history', (history: ChatMessage[]) => {
+    console.log('chat:history payload:', history);
+    setMessages(history);
+  });
 
-    socket.on('chat:error', ({ message }: { message: string }) => {
-      setError(message);
-      setLoading(false);
-    });
+  socket.on('chat:error', ({ message }: { message: string }) => {
+    console.log('chat:error payload:', message);
+    setError(message);
+    setLoading(false);
+  });
 
-    socket.emit('chat:history');
+  socket.emit('chat:history');
 
-    return () => {
-      socket.off('chat:response');
-      socket.off('chat:history');
-      socket.off('chat:error');
-    };
-  }, []);
+  return () => {
+    socket.off('chat:response');
+    socket.off('chat:history');
+    socket.off('chat:error');
+  };
+}, []);
 
   const sendMessage = (text: string) => {
     if (!text.trim() || text.length > 2000) return;

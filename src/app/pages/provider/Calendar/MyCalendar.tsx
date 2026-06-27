@@ -120,7 +120,7 @@ export default function MyCalendar() {
                           <button
                             key={apt._id || apt.id}
                             onClick={() => openDrawer(apt)}
-                            className="w-full bg-primary text-white text-xs px-1 py-0.5 rounded hover:bg-primary/90 transition-colors"
+                            className="w-full bg-purple-600 text-white text-xs px-1 py-0.5 rounded hover:bg-purple-600/90 transition-colors"
                           >
                             {apt.startTime}
                           </button>
