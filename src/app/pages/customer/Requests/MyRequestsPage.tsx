@@ -10,7 +10,13 @@
 // import Input from '../../../components/ui/Input';
 // import EmptyState from '../../../components/ui/EmptyState';
 // import { SkeletonCard } from '../../../components/ui/Skeleton';
-// import { getMyRequests, acceptOffer, rejectOffer } from './MyRequestsActions';
+// import {
+//   getMyRequests,
+//   acceptOffer,
+//   rejectOffer,
+//   completeService,
+//   completeServiceHourly,
+// } from './MyRequestsActions';
 // import { getAllServices } from '../../shared/Services/ServicesActions';
 
 // function mapStatus(apiStatus: string): RequestStatus {
@@ -146,7 +152,8 @@
 //     }
 //   };
 
-//   // ── Complete Service (DIRECT / FIXED) ────────────────────
+//   // ── Complete Service (FIXED) ─────────────────────────────
+//   // paymentMode === 'FIXED' uses /complete with { id, completionCode }
 //   const handleCompleteService = async () => {
 //     if (!selectedRequest || !completionCode.trim()) {
 //       toast.error('Please enter the completion code');
@@ -154,41 +161,28 @@
 //     }
 
 //     setIsCompleting(true);
-//     try {
-//       const token = localStorage.getItem('access_token');
-//       const reqId = selectedRequest._id || selectedRequest.id;
+//     const reqId = selectedRequest._id || selectedRequest.id;
+//     const result = await completeService(reqId, completionCode);
+//     setIsCompleting(false);
 
-//       const res = await fetch('/api/service-requests/complete', {
-//         method: 'PATCH',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${token}`,
-//         },
-//         body: JSON.stringify({ id: reqId, completionCode }),
-//       });
-//       const result = await res.json();
-
-//       if (res.ok) {
-//         toast.success('Service completed successfully!');
-//         setRequests((prev) =>
-//           prev.map((r) =>
-//             (r._id || r.id) === reqId ? { ...r, status: 'COMPLETED' } : r
-//           )
-//         );
-//         setShowCompleteModal(false);
-//         setCompletionCode('');
-//         setSelectedRequest(null);
-//       } else {
-//         toast.error(result.message || 'Invalid completion code');
-//       }
-//     } catch {
-//       toast.error('Failed to complete service');
-//     } finally {
-//       setIsCompleting(false);
+//     if (result.success) {
+//       toast.success(result.message || 'Service completed successfully!');
+//       setRequests((prev) =>
+//         prev.map((r) =>
+//           (r._id || r.id) === reqId ? { ...r, status: 'COMPLETED' } : r
+//         )
+//       );
+//       setShowCompleteModal(false);
+//       setCompletionCode('');
+//       setSelectedRequest(null);
+//     } else {
+//       toast.error(result.error || 'Invalid completion code');
 //     }
 //   };
 
-//   // ── Complete Hourly Service (BROADCAST + HOURLY) ─────────
+//   // ── Complete Service (HOURLY) ────────────────────────────
+//   // paymentMode === 'HOURLY' uses the generic /complete-hourly with { requestId, completionCode, hoursWorked },
+//   // regardless of whether the request is DIRECT or BROADCAST.
 //   const handleCompleteHourlyService = async () => {
 //     if (!selectedRequest || !completionCode.trim() || !hoursWorked) {
 //       toast.error('Please fill all fields');
@@ -196,42 +190,23 @@
 //     }
 
 //     setIsCompleting(true);
-//     try {
-//       const token = localStorage.getItem('access_token');
-//       const reqId = selectedRequest._id || selectedRequest.id;
+//     const reqId = selectedRequest._id || selectedRequest.id;
+//     const result = await completeServiceHourly(reqId, completionCode, Number(hoursWorked));
+//     setIsCompleting(false);
 
-//       const res = await fetch('/api/service-requests/broadcast/complete-hourly', {
-//         method: 'PATCH',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${token}`,
-//         },
-//         body: JSON.stringify({
-//           requestId:     reqId,
-//           completionCode,
-//           hoursWorked:   Number(hoursWorked),
-//         }),
-//       });
-//       const result = await res.json();
-
-//       if (res.ok) {
-//         toast.success('Service completed successfully!');
-//         setRequests((prev) =>
-//           prev.map((r) =>
-//             (r._id || r.id) === reqId ? { ...r, status: 'COMPLETED' } : r
-//           )
-//         );
-//         setShowCompleteHourlyModal(false);
-//         setCompletionCode('');
-//         setHoursWorked('');
-//         setSelectedRequest(null);
-//       } else {
-//         toast.error(result.message || 'Failed to complete service');
-//       }
-//     } catch {
-//       toast.error('Failed to complete service');
-//     } finally {
-//       setIsCompleting(false);
+//     if (result.success) {
+//       toast.success(result.message || 'Service completed successfully!');
+//       setRequests((prev) =>
+//         prev.map((r) =>
+//           (r._id || r.id) === reqId ? { ...r, status: 'COMPLETED' } : r
+//         )
+//       );
+//       setShowCompleteHourlyModal(false);
+//       setCompletionCode('');
+//       setHoursWorked('');
+//       setSelectedRequest(null);
+//     } else {
+//       toast.error(result.error || 'Failed to complete service');
 //     }
 //   };
 
@@ -305,7 +280,6 @@
 //               const status       = mapStatus(request.status);
 //               const provider     = request.provider;
 //               const providerName = getProviderName(provider);
-//               const isBroadcast  = request.requestType === 'BROADCAST';
 //               const isHourly     = request.paymentMode === 'HOURLY';
 
 //               return (
@@ -466,8 +440,8 @@
 //                           </>
 //                         )}
 
-//                         {/* Complete — BROADCAST HOURLY */}
-//                         {status === 'confirmed' && isBroadcast && isHourly && (
+//                         {/* Complete — HOURLY (DIRECT or BROADCAST) */}
+//                         {status === 'confirmed' && isHourly && (
 //                           <Button
 //                             size="sm"
 //                             onClick={() => {
@@ -480,8 +454,8 @@
 //                           </Button>
 //                         )}
 
-//                         {/* Complete — DIRECT or FIXED */}
-//                         {status === 'confirmed' && !(isBroadcast && isHourly) && (
+//                         {/* Complete — FIXED (DIRECT or BROADCAST) */}
+//                         {status === 'confirmed' && !isHourly && (
 //                           <Button
 //                             size="sm"
 //                             onClick={() => {
@@ -503,7 +477,7 @@
 //         </div>
 //       </div>
 
-//       {/* Complete Modal — DIRECT / FIXED */}
+//       {/* Complete Modal — FIXED */}
 //       <Modal
 //         isOpen={showCompleteModal}
 //         onClose={() => { setShowCompleteModal(false); setCompletionCode(''); }}
@@ -540,7 +514,7 @@
 //         </div>
 //       </Modal>
 
-//       {/* Complete Modal — BROADCAST HOURLY */}
+//       {/* Complete Modal — HOURLY */}
 //       <Modal
 //         isOpen={showCompleteHourlyModal}
 //         onClose={() => { setShowCompleteHourlyModal(false); setCompletionCode(''); setHoursWorked(''); }}
@@ -564,6 +538,11 @@
 //             value={hoursWorked}
 //             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHoursWorked(e.target.value)}
 //           />
+//           {selectedRequest?.provider?.hourPrice && hoursWorked && Number(hoursWorked) > 0 && (
+//             <p className="text-sm text-muted-foreground">
+//               Estimated total: EGP {Math.ceil(Number(hoursWorked) * selectedRequest.provider.hourPrice)}
+//             </p>
+//           )}
 //           <div className="flex gap-3">
 //             <Button
 //               variant="outline"
@@ -576,7 +555,7 @@
 //             <Button
 //               onClick={handleCompleteHourlyService}
 //               className="flex-1"
-//               disabled={isCompleting || !completionCode.trim() || !hoursWorked}
+//               disabled={isCompleting || !completionCode.trim() || !hoursWorked || Number(hoursWorked) < 1}
 //             >
 //               {isCompleting ? 'Completing...' : 'Confirm'}
 //             </Button>
@@ -609,6 +588,7 @@ import {
   completeServiceHourly,
 } from './MyRequestsActions';
 import { getAllServices } from '../../shared/Services/ServicesActions';
+import ProviderReviewModal from './ProviderReviewModal';
 
 function mapStatus(apiStatus: string): RequestStatus {
   const map: Record<string, RequestStatus> = {
@@ -683,6 +663,10 @@ export default function MyRequestsPage() {
   const [completionCode,         setCompletionCode]         = useState('');
   const [hoursWorked,            setHoursWorked]            = useState('');
   const [isCompleting,           setIsCompleting]           = useState(false);
+
+  // ============ REVIEW MODAL STATE ============
+  const [showReviewModal,   setShowReviewModal]   = useState(false);
+  const [completedRequest,  setCompletedRequest]  = useState<any | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -765,7 +749,9 @@ export default function MyRequestsPage() {
       );
       setShowCompleteModal(false);
       setCompletionCode('');
+      setCompletedRequest(selectedRequest);
       setSelectedRequest(null);
+      setShowReviewModal(true);
     } else {
       toast.error(result.error || 'Invalid completion code');
     }
@@ -795,7 +781,9 @@ export default function MyRequestsPage() {
       setShowCompleteHourlyModal(false);
       setCompletionCode('');
       setHoursWorked('');
+      setCompletedRequest(selectedRequest);
       setSelectedRequest(null);
+      setShowReviewModal(true);
     } else {
       toast.error(result.error || 'Failed to complete service');
     }
@@ -1153,6 +1141,15 @@ export default function MyRequestsPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Post-completion review */}
+      <ProviderReviewModal
+        isOpen={showReviewModal}
+        onClose={() => { setShowReviewModal(false); setCompletedRequest(null); }}
+        providerId={completedRequest?.provider?._id || completedRequest?.provider?.id || ''}
+        requestId={completedRequest?._id || completedRequest?.id || ''}
+        providerName={getProviderName(completedRequest?.provider) || undefined}
+      />
 
       <Footer />
     </div>

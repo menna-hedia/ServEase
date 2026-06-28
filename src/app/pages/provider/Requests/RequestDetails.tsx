@@ -695,7 +695,7 @@ export default function ProviderRequestDetails() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="flex items-start gap-3">
-                  <DollarSign className="w-5 h-5 text-purple-600 mt-0.5 shrink-0" />
+                  <DollarSign className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                   <div>
                     <p className="font-semibold text-sm">Service</p>
                     <p className="text-muted-foreground text-sm">{request.serviceNeeded || '—'}</p>
@@ -704,7 +704,7 @@ export default function ProviderRequestDetails() {
 
                 {request.dateNeeded && (
                   <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-purple-600 mt-0.5 shrink-0" />
+                    <Calendar className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                     <div>
                       <p className="font-semibold text-sm">Date Needed</p>
                       <p className="text-muted-foreground text-sm">
@@ -721,7 +721,7 @@ export default function ProviderRequestDetails() {
 
                 {request.startTime && (
                   <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-purple-600 mt-0.5 shrink-0" />
+                    <Clock className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                     <div>
                       <p className="font-semibold text-sm">Time</p>
                       <p className="text-muted-foreground text-sm">
@@ -734,7 +734,7 @@ export default function ProviderRequestDetails() {
 
                 {locationStr && (
                   <div className="flex items-start gap-3 md:col-span-2">
-                    <MapPin className="w-5 h-5 text-purple-600 mt-0.5 shrink-0" />
+                    <MapPin className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                     <div>
                       <p className="font-semibold text-sm">Location</p>
                       <p className="text-muted-foreground text-sm">{locationStr}</p>

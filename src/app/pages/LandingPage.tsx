@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import logo from "../components/images/logoWhite.png"
 import {
   Menu,
@@ -21,13 +22,18 @@ import {
   Linkedin,
   Mail,
   Phone,
-  // Home as HomeIcon,
   Send,
+  Trash2,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import Modal from '../components/ui/Modal';
+import Textarea from '../components/ui/Textarea';
+import { SkeletonCard } from '../components/ui/Skeleton';
 import { getGeneralCounts } from './shared/Services/generalCounts';
 import landingImage from '../components/images/landing.jpg';
+import { getGlobalReviews, submitGlobalReview, deleteGlobalReview } from './shared/Services/ReviewActions';
+import Footer from '../components/layout/Footer';
 
 const categories = [
   { name: 'Electrician', icon: '⚡', color: 'bg-yellow-100' },
@@ -73,33 +79,20 @@ const features = [
   },
 ];
 
-const reviews = [
-  {
-    name: 'Sarah Johnson',
-    role: 'Customer',
-    rating: 5,
-    text: 'Incredible service! Found an excellent electrician within minutes. The whole process was smooth and professional.',
-    photo: 'https://i.pravatar.cc/150?img=1',
-  },
-  {
-    name: 'Mike Chen',
-    role: 'Provider',
-    rating: 5,
-    text: 'As a provider, ServEase has transformed my business. I receive quality job requests daily and the platform is easy to use.',
-    photo: 'https://i.pravatar.cc/150?img=12',
-  },
-  {
-    name: 'Emily Rodriguez',
-    role: 'Customer',
-    rating: 5,
-    text: 'Best platform for home services! The providers are professional and the pricing is transparent. Highly recommended!',
-    photo: 'https://i.pravatar.cc/150?img=5',
-  },
-];
+function getUserIdFromToken(): string {
+  try {
+    const token = localStorage.getItem('access_token');
+    if (!token) return '';
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.id || payload._id || payload.userId || payload.sub || '';
+  } catch {
+    return '';
+  }
+}
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentReview, setCurrentReview] = useState(0);
+
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
@@ -107,21 +100,17 @@ export default function LandingPage() {
     message: '',
   });
   const [contactSubmitted, setContactSubmitted] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [currentReview, setCurrentReview] = useState(0);
+  const [showAddReview, setShowAddReview] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
+  const REVIEW_DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
 
-  const nextReview = () => setCurrentReview((prev) => (prev + 1) % reviews.length);
-  const prevReview = () => setCurrentReview((prev) => (prev - 1 + reviews.length) % reviews.length);
-
-  const handleContactChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setContactForm({ ...contactForm, [e.target.name]: e.target.value });
-  };
-
-  const handleContactSubmit = (e: React.FormEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setContactSubmitted(true);
-    setContactForm({ name: '', email: '', subject: '', message: '' });
-  };
   const [counts, setCounts] = useState({
     providerCount: 0,
     requesterCount: 0,
@@ -129,6 +118,24 @@ export default function LandingPage() {
   });
   const [loadingCounts, setLoadingCounts] = useState(true);
 
+  // ============ LOAD CURRENT USER ID ============
+  useEffect(() => {
+    setCurrentUserId(getUserIdFromToken());
+  }, []);
+
+  // ============ LOAD REVIEWS ============
+  useEffect(() => {
+    const loadReviews = async () => {
+      setLoadingReviews(true);
+      const result = await getGlobalReviews();
+      setLoadingReviews(false);
+
+      if (result.success) setReviews(result.data ?? []);
+    };
+    loadReviews();
+  }, []);
+
+  // ============ LOAD COUNTS ============
   useEffect(() => {
     const loadCounts = async () => {
       setLoadingCounts(true);
@@ -146,6 +153,90 @@ export default function LandingPage() {
     loadCounts();
   }, []);
 
+  // ============ REVIEW NAV ============
+  const nextReview = () => setCurrentReview((p) => (p + 1) % reviews.length);
+  const prevReview = () => setCurrentReview((p) => (p - 1 + reviews.length) % reviews.length);
+
+  // ============ SUBMIT REVIEW ============
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewText.trim()) { toast.error('Please write a review'); return; }
+
+    setIsSubmitting(true);
+    const result = await submitGlobalReview(reviewRating, reviewText.trim());
+    setIsSubmitting(false);
+
+    if (result.success) {
+      toast.success('Review submitted successfully!');
+      setShowAddReview(false);
+      setReviewText('');
+      setReviewRating(5);
+
+      const newReview = {
+        ...result.data,
+        userId: {
+          _id: getUserIdFromToken() || result.data.userId,
+          userName: '',
+          firstName: '',
+          lastName: '',
+          profileURL: '',
+        },
+      };
+
+      setReviews((prev) => [newReview, ...prev]);
+      setCurrentReview(0);
+    } else {
+      toast.error(result.error || 'Failed to submit review');
+    }
+  };
+
+  // ============ DELETE REVIEW ============
+  const handleDeleteReview = async (reviewId: string) => {
+    const confirmed = window.confirm('Are you sure you want to delete this review?');
+    if (!confirmed) return;
+
+    setDeletingReviewId(reviewId);
+    const result = await deleteGlobalReview(reviewId);
+    setDeletingReviewId(null);
+
+    if (result.success) {
+      toast.success(result.message || 'Review deleted successfully');
+      setReviews((prev) => prev.filter((r) => r._id !== reviewId));
+      setCurrentReview((prev) => (prev > 0 ? prev - 1 : 0));
+    } else {
+      const isForbidden = result.error?.toLowerCase().includes('forbidden');
+      toast.error(
+        isForbidden
+          ? "Delete isn't working right now due to a server issue."
+          : result.error || 'Failed to delete review'
+      );
+    }
+  };
+
+  // ============ REVIEW HELPERS ============
+  const getReviewUser = (review: any) => {
+    const user = typeof review?.userId === 'object' ? review.userId : null;
+    return {
+      name: user?.userName ||
+        (user?.firstName && user?.lastName
+          ? `${user.firstName} ${user.lastName}`
+          : 'Anonymous'),
+      photo: user?.profileURL || REVIEW_DEFAULT_AVATAR,
+    };
+  };
+
+  const handleContactChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setContactForm({ ...contactForm, [e.target.name]: e.target.value });
+  };
+
+  const handleContactSubmit = (e: React.FormEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setContactSubmitted(true);
+    setContactForm({ name: '', email: '', subject: '', message: '' });
+  };
+
   return (
     <div className="min-h-screen bg-background">
 
@@ -155,12 +246,12 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-20">
             <Link to="/" className="flex items-center gap-2">
               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center overflow-hidden">
-  <img
-    src={logo}
-    alt="ServEase"
-    className="w-8 h-8 object-contain"
-  />
-</div>
+                <img
+                  src={logo}
+                  alt="ServEase"
+                  className="w-8 h-8 object-contain"
+                />
+              </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 ServEase
               </span>
@@ -209,45 +300,45 @@ export default function LandingPage() {
         )}
       </nav>
 
-    {/* Hero Section */}
-<section id="home" className="relative overflow-hidden">
-  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent" />
-  <div className="container mx-auto px-4 lg:px-8 py-20 lg:py-32 relative">
-    <div className="grid lg:grid-cols-2 gap-12 items-center">
-      <div className="space-y-8">
-        <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-          Your Trusted Home & Office Services{' '}
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Marketplace
-          </span>
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Connect with verified professionals for all your home and office needs. Fast, reliable, and affordable.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link to="/signup/customer">
-            <Button size="lg" className="w-full sm:w-auto group">
-              Find Service
-              <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-            </Button>
-          </Link>
-          <Link to="/signup/provider">
-            <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              I'm a Provider
-            </Button>
-          </Link>
+      {/* Hero Section */}
+      <section id="home" className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent" />
+        <div className="container mx-auto px-4 lg:px-8 py-20 lg:py-32 relative">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+                Your Trusted Home & Office Services{' '}
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Marketplace
+                </span>
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Connect with verified professionals for all your home and office needs. Fast, reliable, and affordable.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link to="/signup/customer">
+                  <Button size="lg" className="w-full sm:w-auto group">
+                    Find Service
+                    <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                  </Button>
+                </Link>
+                <Link to="/signup/provider">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    I'm a Provider
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            <div className="relative">
+              <img
+                src={landingImage}
+                alt="Home and office services illustration"
+                className="w-full h-96 object-cover rounded-3xl"
+              />
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="relative">
-       <img
-  src={landingImage}
-  alt="Home and office services illustration"
-  className="w-full h-96 object-cover rounded-3xl"
-/>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* Features Section */}
       <section id="features" className="py-20 lg:py-32">
@@ -293,76 +384,125 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Reviews Section */}
+      {/* ── Platform Reviews ── */}
       <section id="reviews" className="py-20 lg:py-32">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-4">What Our Users Say</h2>
-            <p className="text-xl text-muted-foreground">Trusted by thousands of customers and providers</p>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">Platform Reviews</h2>
+
           </div>
-          <div className="max-w-4xl mx-auto relative">
-            <Card className="p-8 lg:p-12">
-              <div className="flex flex-col items-center text-center space-y-6">
-                <img
-                  src={reviews[currentReview].photo}
-                  alt={reviews[currentReview].name}
-                  className="w-20 h-20 rounded-full border-4 border-primary"
-                />
-                <div>
-                  <h3 className="text-2xl font-semibold mb-1">{reviews[currentReview].name}</h3>
-                  <p className="text-muted-foreground mb-3">{reviews[currentReview].role}</p>
-                  <div className="flex justify-center gap-1 mb-4">
-                    {[...Array(reviews[currentReview].rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-lg text-muted-foreground italic">"{reviews[currentReview].text}"</p>
+
+          {loadingReviews ? (
+            <div className="max-w-3xl mx-auto"><SkeletonCard /></div>
+          ) : reviews.length === 0 ? (
+            <div className="max-w-3xl mx-auto">
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">No reviews yet. Be the first to review!</p>
+              </Card>
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto">
+              <Card className="p-8 relative">
+                {(() => {
+                  const rev = reviews[currentReview];
+                  const { name, photo } = getReviewUser(rev);
+                  const reviewOwnerId = typeof rev?.userId === 'object' ? rev.userId._id : rev?.userId;
+                  const isOwnReview = currentUserId && reviewOwnerId === currentUserId;
+
+                  return (
+                    <div className="flex flex-col items-center text-center space-y-4">
+                      {isOwnReview && (
+                        <button
+                          onClick={() => handleDeleteReview(rev._id)}
+                          disabled={deletingReviewId === rev._id}
+                          className="absolute top-4 right-4 p-2 rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          title="Delete review"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                      <img
+                        src={photo}
+                        alt={name}
+                        className="w-20 h-20 rounded-full border-4 border-primary object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = REVIEW_DEFAULT_AVATAR;
+                        }}
+                      />
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">{name}</h3>
+                        <div className="flex justify-center gap-1 mb-3">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-5 h-5 ${i < (rev?.rate || 0)
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-gray-300'
+                                }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-muted-foreground italic">"{rev?.content}"</p>
+                        {rev?.createdAt && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {new Date(rev.createdAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </Card>
+
+              {reviews.length > 1 && (
+                <div className="flex justify-center items-center gap-4 mt-6">
+                  <button
+                    onClick={prevReview}
+                    className="p-3 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentReview + 1} / {reviews.length}
+                  </span>
+                  <button
+                    onClick={nextReview}
+                    className="p-3 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
                 </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section>
+        <div className="bg-gradient-to-br from-primary to-accent text-white p-8 lg:p-12">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-5xl font-bold mb-2">
+                {loadingCounts ? '—' : `${counts.providerCount.toLocaleString()}+`}
               </div>
-            </Card>
-            <div className="flex justify-center gap-4 mt-8">
-              <button
-                onClick={prevReview}
-                className="p-3 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                onClick={nextReview}
-                className="p-3 rounded-full bg-primary text-white hover:bg-primary/90 transition-colors"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
+              <p className="text-xl text-white/90">Registered Providers</p>
+            </div>
+            <div>
+              <div className="text-5xl font-bold mb-2">
+                {loadingCounts ? '—' : `${counts.requesterCount.toLocaleString()}+`}
+              </div>
+              <p className="text-xl text-white/90">Compeleted Services</p>
+            </div>
+            <div>
+              <div className="text-5xl font-bold mb-2">
+                {loadingCounts ? '—' : `${(counts.userSatisfaction * 20).toFixed(0)}%`}
+              </div>
+              <p className="text-xl text-white/90">User Satisfaction</p>
             </div>
           </div>
         </div>
       </section>
-{/* 
-      Statistics Section */}
-      <section>
-          <div className="bg-gradient-to-br from-primary to-accent text-white p-8 lg:p-12">
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-5xl font-bold mb-2">
-                  {loadingCounts ? '—' : `${counts.providerCount.toLocaleString()}+`}
-                </div>
-                <p className="text-xl text-white/90">Registered Providers</p>
-              </div>
-              <div>
-                <div className="text-5xl font-bold mb-2">
-                  {loadingCounts ? '—' : `${counts.requesterCount.toLocaleString()}+`}
-                </div>
-                <p className="text-xl text-white/90">Compeleted Services</p>
-              </div>
-              <div>
-                <div className="text-5xl font-bold mb-2">
-                  {loadingCounts ? '—' : `${(counts.userSatisfaction * 20).toFixed(0)}%`}
-                </div>
-                <p className="text-xl text-white/90">User Satisfaction</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
       {/* Contact Us Section */}
       <section id="contact" className="py-10 lg:py-32 bg-muted/30">
@@ -422,12 +562,49 @@ export default function LandingPage() {
                   <div>
                     <p className="font-semibold text-foreground">Response Time</p>
                     <p className="text-muted-foreground text-sm">We aim to respond within 24 hours</p>
-                    {/* <p className="text-muted-foreground text-sm mt-1">Priority support available for Pro accounts</p> */}
                   </div>
                 </div>
               </div>
             </div>
-
+            {/* Add Review Modal */}
+            <Modal
+              isOpen={showAddReview}
+              onClose={() => setShowAddReview(false)}
+              title="Add Your Review"
+            >
+              <form onSubmit={handleSubmitReview} className="space-y-4">
+                <div>
+                  <label className="block mb-2 font-medium text-sm">Rating</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className="p-1 hover:scale-110 transition-transform"
+                      >
+                        <Star
+                          className={`w-8 h-8 ${star <= reviewRating
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-300'
+                            }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <Textarea
+                  label="Your Review"
+                  placeholder="Share your experience with ServEase..."
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  required
+                />
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                </Button>
+              </form>
+            </Modal>
             {/* Contact Form */}
             <div>
               {contactSubmitted ? (
@@ -524,125 +701,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer id="about" className="bg-secondary text-white py-16">
-        <div className="container mx-auto px-4 lg:px-8">
-
-          {/* About ServEase */}
-          <div className="mb-12 pb-12 border-b border-white/10">
-            <h3 className="text-2xl font-bold mb-6 text-center">About ServEase</h3>
-            <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
-                  </div>
-                  <h4 className="text-lg font-semibold">For Customers</h4>
-                </div>
-                <p className="text-white/75 text-sm leading-relaxed">
-                  ServEase empowers homeowners and tenants to discover, compare, and book trusted home
-                  service professionals in minutes. Our platform lets you browse verified provider profiles,
-                  read authentic customer reviews, and track your service request in real time — all from one
-                  convenient dashboard. Every booking is backed by our satisfaction guarantee, transparent
-                  pricing, and secure in-app payment, so you can focus on what matters while we handle the rest.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
-                    <Award className="w-5 h-5 text-white" />
-                  </div>
-                  <h4 className="text-lg font-semibold">For Service Providers</h4>
-                </div>
-                <p className="text-white/75 text-sm leading-relaxed">
-                  ServEase is built to help skilled professionals grow their business without the hassle of
-                  traditional marketing. By joining our network, you gain instant access to a steady stream
-                  of qualified job requests in your area, a professional profile that showcases your skills
-                  and customer ratings, and seamless tools for scheduling, invoicing, and secure payment
-                  collection. Whether you're an independent technician or a growing service company,
-                  ServEase gives you the visibility and infrastructure to scale with confidence.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Links */}
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-               <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center overflow-hidden">
-  <img
-    src={logo}
-    alt="ServEase"
-    className="w-8 h-8 object-contain"
-  />
-</div>
-                <span className="text-2xl font-bold">ServEase</span>
-              </div>
-              <p className="text-white/80">
-                Your trusted platform for connecting with professional home service providers.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <div className="space-y-2">
-                <a href="#home" className="block text-white/80 hover:text-white">Home</a>
-                <a href="#features" className="block text-white/80 hover:text-white">Features</a>
-                <a href="#reviews" className="block text-white/80 hover:text-white">Reviews</a>
-                <a href="#contact" className="block text-white/80 hover:text-white">Contact</a>
-                <Link to="/signin" className="block text-white/80 hover:text-white">Sign In</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">For Providers</h4>
-              <div className="space-y-2">
-                <Link to="/signup/provider" className="block text-white/80 hover:text-white">
-                  Join as Provider
-                </Link>
-                <a href="#" className="block text-white/80 hover:text-white">How it Works</a>
-                <a href="#" className="block text-white/80 hover:text-white">Pricing</a>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Contact Us</h4>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-white/80">
-                  <Mail className="w-5 h-5 flex-shrink-0" />
-                  <a
-                    href="mailto:noreply@contact.servease.me"
-                    className="hover:text-white transition-colors text-sm"
-                  >
-                    noreply@contact.servease.me
-                  </a>
-                </div>
-                <div className="flex items-center gap-2 text-white/80">
-                  <Phone className="w-5 h-5 flex-shrink-0" />
-                  <span>+1 (555) 123-4567</span>
-                </div>
-                <div className="flex gap-3 mt-4">
-                  <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                    <Facebook className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                    <Twitter className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                    <Instagram className="w-5 h-5" />
-                  </a>
-                  <a href="#" className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-white/10 text-center text-white/60">
-            <p>&copy; 2026 ServEase. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-
+      <Footer />
     </div>
+
+
   );
+
 }

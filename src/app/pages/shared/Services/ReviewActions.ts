@@ -66,3 +66,105 @@ export async function deleteGlobalReview(reviewId: string) {
     return { success: false, error: error instanceof Error ? error.message : 'Network error' };
   }
 }
+
+// export async function submitProviderReview(providerId: string, requestId: string, rate: number, content: string) {
+//   try {
+//     const token = localStorage.getItem('access_token');
+
+//     const res = await fetch('/api/review/provider-review', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         Authorization: `Bearer ${token}`,
+//       },
+//       body: JSON.stringify({ providerId, requestId, rate, content }),
+//     });
+
+//     const result = await res.json();
+
+//     if (res.ok || res.status === 201) {
+//       return { success: true, data: result, message: 'Review submitted successfully' };
+//     }
+
+//     return { success: false, error: result.message || 'Failed to submit review' };
+//   } catch (error) {
+//     return { success: false, error: error instanceof Error ? error.message : 'Network error' };
+//   }
+// }
+
+export async function getRequestReviews() {
+  try {
+    const token = localStorage.getItem('access_token');
+
+    const res = await fetch('/api/review/request-reviews', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      return {
+        success: true,
+        data: Array.isArray(result) ? result : [],
+      };
+    }
+
+    return { success: false, error: result.message || 'Failed to fetch request reviews' };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Network error' };
+  }
+}
+
+// NOTE: Endpoint name and body shape (ProviderId capitalization) are inferred from
+// the GET /review/request-reviews response. Confirm against the actual backend route
+// and adjust if the POST endpoint name or field casing differs.
+// export async function submitProviderReview(providerId: string, requestId: string, rate: number, content: string) {
+//   try {
+//     const token = localStorage.getItem('access_token');
+
+//     const res = await fetch('/api/review/request-review', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         Authorization: `Bearer ${token}`,
+//       },
+//       body: JSON.stringify({ ProviderId: providerId, requestId, rate, content }),
+//     });
+
+//     const result = await res.json();
+
+//     if (res.ok || res.status === 201) {
+//       return { success: true, data: result, message: 'Review submitted successfully' };
+//     }
+
+//     return { success: false, error: result.message || 'Failed to submit review' };
+//   } catch (error) {
+//     return { success: false, error: error instanceof Error ? error.message : 'Network error' };
+//   }
+// }
+export async function submitProviderReview(providerId: string, requestId: string, rate: number, content: string) {
+  try {
+    const token = localStorage.getItem('access_token');
+
+    const res = await fetch('/api/review/request-review', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ providerId, requestId, rate, content }),
+    });
+
+    const result = await res.json();
+
+    if (res.ok || res.status === 201) {
+      return { success: true, data: result, message: 'Review submitted successfully' };
+    }
+
+    return { success: false, error: result.message || 'Failed to submit review' };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Network error' };
+  }
+}

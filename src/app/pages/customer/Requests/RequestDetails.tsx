@@ -459,6 +459,7 @@ import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
+import ProviderReviewModal from './ProviderReviewModal';
 import { getRequestDetails, cancelRequest, acceptOffer, rejectOffer, getProviderHourPrice } from './MyRequestsActions';
 
 const DEFAULT_AVATAR = 'https://i.pinimg.com/736x/07/fb/34/07fb3452c4640d881a16d08c2e314f3e.jpg';
@@ -498,6 +499,9 @@ export default function CustomerRequestDetails() {
   const [isAccepting,     setIsAccepting]     = useState(false);
   const [isRejecting,     setIsRejecting]     = useState(false);
   const [providerHourPrice, setProviderHourPrice] = useState<number | null>(null);
+
+  const [showReviewModal, setShowReviewModal] = useState(false);
+const [completedRequest, setCompletedRequest] = useState<any | null>(null);
 
   useEffect(() => {
     if (!request?.provider?._id || request?.paymentMode !== 'HOURLY') return;

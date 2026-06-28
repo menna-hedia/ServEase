@@ -14,6 +14,7 @@ import { getGlobalReviews, submitGlobalReview, deleteGlobalReview } from '../../
 import { getAllServices } from '../../shared/Services/ServicesActions';
 import { useNavigate } from 'react-router-dom';
 import CreateBroadcastModal from '../Broadcast/CreateBroadcastModal';
+import { getGeneralCounts } from '../../shared/Services/generalCounts';
 
 const categoryIcons: Record<string, { icon: string; color: string }> = {
   'Plumbing': { icon: '🔧', color: 'bg-blue-100' },
@@ -62,6 +63,29 @@ export default function CustomerHome() {
     subject: '',
     message: '',
   });
+    const [counts, setCounts] = useState({
+    providerCount: 0,
+    requesterCount: 0,
+    userSatisfaction: 0,
+  });
+  const [loadingCounts, setLoadingCounts] = useState(true);
+
+  useEffect(() => {
+    const loadCounts = async () => {
+      setLoadingCounts(true);
+      const result = await getGeneralCounts();
+      setLoadingCounts(false);
+
+      if (result.success) {
+        setCounts({
+          providerCount: result.data.providerCount ?? 0,
+          requesterCount: result.data.requesterCount ?? 0,
+          userSatisfaction: result.data.userSatisfaction ?? 0,
+        });
+      }
+    };
+    loadCounts();
+  }, []);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -257,18 +281,18 @@ export default function CustomerHome() {
                     </p>
 
                     <h2 className="mt-2 text-4xl font-bold text-white">
-                      500+
+                      {loadingCounts ? '—' : `${counts.providerCount.toLocaleString()}+`}
                     </h2>
                   </div>
 
 
                   <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-lg p-6">
                     <p className="text-sm text-white/70">
-                      Customer Rating
+                      User Satisfaction
                     </p>
 
                     <h2 className="mt-2 text-4xl font-bold text-white">
-                      4.9
+                       {loadingCounts ? '—' : counts.userSatisfaction }
                     </h2>
                   </div>
 
