@@ -113,7 +113,7 @@ export default function Billing() {
           <p className="text-muted-foreground">Track your earnings and transactions</p>
         </div>
 
-        {hasDebtWarning && (
+        {hasDebtWarning ? (
           <div className="mb-8 bg-destructive/10 border-2 border-destructive rounded-xl p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-destructive/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -140,7 +140,33 @@ export default function Billing() {
               </div>
             </div>
           </div>
-        )}
+        ):<div className="mb-8 bg-destructive/10 border-2 border-destructive rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-destructive/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-destructive mb-2">Payment Required</h3>
+                <p className="text-destructive/90 mb-4">
+                 you have
+                  {debtAmount > 0 && <>  EGP {debtAmount}</>}.
+                  you can pay now.
+                </p>
+
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  onClick={handlePayDebt}
+                  disabled={payingDebt}
+                  className="gap-2"
+                >
+                  <CreditCard className="w-5 h-5" />
+                  {payingDebt ? 'Opening payment...' : 'Pay Your Debt'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        }
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           {summaryData.map((item) => (

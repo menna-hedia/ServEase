@@ -415,16 +415,7 @@ export default function ProviderHome() {
 
                   return (
                     <div className="flex flex-col items-center text-center space-y-4">
-                      {isOwnReview && (
-                        <button
-                          onClick={() => handleDeleteReview(rev._id)}
-                          disabled={deletingReviewId === rev._id}
-                          className="absolute top-4 right-4 p-2 rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-                          title="Delete review"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                
                       <img
                         src={photo}
                         alt={name}

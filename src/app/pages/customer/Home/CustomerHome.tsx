@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ChevronLeft, ChevronRight, Send, Mail, Phone, Clock, CheckCircle, Trash2 } from 'lucide-react';
+import { Star, ChevronLeft, ChevronRight, Send, Mail, Phone, Clock, CheckCircle} from 'lucide-react';
 import CustomerNavbar from '../../../components/layout/CustomerNavbar';
 import Footer from '../../../components/layout/Footer';
 import Button from '../../../components/ui/Button';
@@ -376,16 +376,7 @@ export default function CustomerHome() {
 
                   return (
                     <div className="flex flex-col items-center text-center space-y-4">
-                      {isOwnReview && (
-                        <button
-                          onClick={() => handleDeleteReview(rev._id)}
-                          disabled={deletingReviewId === rev._id}
-                          className="absolute top-4 right-4 p-2 rounded-full text-muted-foreground hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
-                          title="Delete review"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
+                 
                       <img
                         src={photo}
                         alt={name}
